@@ -2,7 +2,6 @@ import * as cl from '@node-3d/opencl';
 
 const { context, device } = cl.quickStart(true);
 
-
 const BUFFER_SIZE: number = 10;
 
 const A = new Uint32Array(BUFFER_SIZE);
@@ -54,15 +53,15 @@ cl.setKernelArg(kernel, 3, 'uint', BUFFER_SIZE);
 const queue = cl.createCommandQueue(context, device);
 
 // Do the work
-cl.enqueueWriteBuffer (queue, aBuffer, true, 0, A.length * Uint32Array.BYTES_PER_ELEMENT, A);
-cl.enqueueWriteBuffer (queue, bBuffer, true, 0, B.length * Uint32Array.BYTES_PER_ELEMENT, B);
+cl.enqueueWriteBuffer(queue, aBuffer, true, 0, A.length * Uint32Array.BYTES_PER_ELEMENT, A);
+cl.enqueueWriteBuffer(queue, bBuffer, true, 0, B.length * Uint32Array.BYTES_PER_ELEMENT, B);
 
 // Execute (enqueue) kernel
 cl.enqueueNDRangeKernel(queue, kernel, 1, undefined, [BUFFER_SIZE]);
 
 // get results and block while getting them
 const C = new Uint32Array(BUFFER_SIZE);
-cl.enqueueReadBuffer (queue, cBuffer, true, 0, C.length * Uint32Array.BYTES_PER_ELEMENT, C);
+cl.enqueueReadBuffer(queue, cBuffer, true, 0, C.length * Uint32Array.BYTES_PER_ELEMENT, C);
 
 // print results
 console.log(`A = [${A.join(', ')}]`);

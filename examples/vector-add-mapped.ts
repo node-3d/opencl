@@ -2,7 +2,6 @@ import * as cl from '@node-3d/opencl';
 
 const { context, device } = cl.quickStart(true);
 
-
 const BUFFER_SIZE = 10;
 
 const A = new Uint32Array(BUFFER_SIZE);

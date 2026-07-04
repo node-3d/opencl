@@ -514,9 +514,10 @@ type TDeviceCandidate = Readonly<{
 	label: string;
 }>;
 
-export type TQuickStartResult = TDeviceCandidate & Readonly<{
-	context: TClContext;
-}>;
+export type TQuickStartResult = TDeviceCandidate &
+	Readonly<{
+		context: TClContext;
+	}>;
 
 type TQuickStartCache = Readonly<{
 	devices: readonly TDeviceCandidate[];
@@ -571,8 +572,8 @@ export const quickStart = (isLoggingDevices = false): TQuickStartResult => {
 	const devicesNoDx = devicesAll.filter((device) => !device.version.includes('D3D'));
 	const devices = devicesNoDx.length > 0 ? devicesNoDx : devicesAll;
 	const devicesGpu = devices.filter((device) => device.type === DEVICE_TYPE_GPU);
-	const mainDevice = (devicesGpu.length > 0 ? devicesGpu : devices).toSorted(
-		(a, b) => (b.version > a.version ? 1 : -1),
+	const mainDevice = (devicesGpu.length > 0 ? devicesGpu : devices).toSorted((a, b) =>
+		b.version > a.version ? 1 : -1,
 	)[0];
 
 	if (!mainDevice) {
@@ -583,10 +584,7 @@ export const quickStart = (isLoggingDevices = false): TQuickStartResult => {
 		showDevices(devices, mainDevice);
 	}
 
-	const context = createContext(
-		[CONTEXT_PLATFORM, mainDevice.platform],
-		[mainDevice.device],
-	);
+	const context = createContext([CONTEXT_PLATFORM, mainDevice.platform], [mainDevice.device]);
 
 	cached = { devices, result: { ...mainDevice, context } };
 	return cached.result;

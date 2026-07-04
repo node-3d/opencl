@@ -3,7 +3,6 @@ import * as cl from '@node-3d/opencl';
 
 const { context, device } = cl.quickStart(true);
 
-
 const NVALUES = 100;
 const inputs = Buffer.alloc(NVALUES * 4);
 const outputs = Buffer.alloc(NVALUES * 4);
@@ -34,21 +33,24 @@ cl.enqueueNDRangeKernel(cq, kern, 1, undefined, [NVALUES]);
 // here we use the returned user event to associate a callback that will be called from OpenCL
 // once read buffer is complete.
 const ev = cl.enqueueReadBuffer(
-	cq, outputsMem, true, 0, NVALUES * 4, outputs, [], true,
+	cq,
+	outputsMem,
+	true,
+	0,
+	NVALUES * 4,
+	outputs,
+	[],
+	true,
 ) as cl.TClEvent;
 
 const correctValue = (NVALUES - 1) * (NVALUES - 1);
 
-cl.setEventCallback(
-	ev,
-	cl.COMPLETE,
-	() => {
-		console.log('\nASYNC EVENT:');
-		console.log('\tLast value is:', outputs.readUInt32LE(4 * (NVALUES - 1)));
-		console.log('\tCorrect value is:', correctValue);
-		process.exit();
-	},
-);
+cl.setEventCallback(ev, cl.COMPLETE, () => {
+	console.log('\nASYNC EVENT:');
+	console.log('\tLast value is:', outputs.readUInt32LE(4 * (NVALUES - 1)));
+	console.log('\tCorrect value is:', correctValue);
+	process.exit();
+});
 
 // Main thread will always finish before CL callbacks are finished.
 // Calling process.exit() in the main thread would skip CL callbacks from executing

@@ -5,20 +5,23 @@ import type { TestContext } from 'node:test';
 import * as cl from './index.ts';
 import * as U from './utils.ts';
 
-const squareKern = fs.readFileSync(new URL('../examples/assets/kernels/square.cl', import.meta.url)).toString();
-const squareCpyKern = fs.readFileSync(new URL('../examples/assets/kernels/square_cpy.cl', import.meta.url)).toString();
-
+const squareKern = fs
+	.readFileSync(new URL('../examples/assets/kernels/square.cl', import.meta.url))
+	.toString();
+const squareCpyKern = fs
+	.readFileSync(new URL('../examples/assets/kernels/square_cpy.cl', import.meta.url))
+	.toString();
 
 describe('Program', () => {
 	const { context, device } = cl.quickStart();
-	
+
 	describe('#createProgramWithSource', () => {
 		it('returns a valid program', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			assert.ok(prg);
 			cl.releaseProgram(prg);
 		});
-		
+
 		it('throws as context is invalid', () => {
 			assert.throws(
 				() => cl.createProgramWithSource(null as unknown as cl.TClContext, squareKern),
@@ -26,7 +29,7 @@ describe('Program', () => {
 			);
 		});
 	});
-	
+
 	describe('#buildProgram', () => {
 		it('builds using a valid program and a given device', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
@@ -34,14 +37,14 @@ describe('Program', () => {
 			assert.strictEqual(ret, undefined);
 			cl.releaseProgram(prg);
 		});
-		
+
 		it('builds using a valid program', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			const ret = cl.buildProgram(prg);
 			assert.strictEqual(ret, undefined);
 			cl.releaseProgram(prg);
 		});
-		
+
 		it('builds and call the callback using a valid program', (_t, done) => {
 			const cb: cl.TBuildProgramCb = (prg, userData) => {
 				assert.ok(prg);
@@ -53,27 +56,24 @@ describe('Program', () => {
 			const ret = cl.buildProgram(prg, undefined, undefined, cb, { done });
 			assert.strictEqual(ret, undefined);
 		});
-		
+
 		it('builds using a valid program and options', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			const ret = cl.buildProgram(prg, null, '-D NOCL_TEST=5');
 			assert.strictEqual(ret, undefined);
 			cl.releaseProgram(prg);
 		});
-		
+
 		it('throws if program is nullptr', () => {
 			assert.throws(
 				() => cl.buildProgram(null as unknown as cl.TClProgram),
 				new Error('Argument 0 must be of type `Object`'),
 			);
 		});
-		
+
 		it('throws if program is INVALID', () => {
 			const prg = cl.createProgramWithSource(context, `${squareKern}????`);
-			assert.throws(
-				() => cl.buildProgram(prg, [device]),
-				cl.BUILD_PROGRAM_FAILURE,
-			);
+			assert.throws(() => cl.buildProgram(prg, [device]), cl.BUILD_PROGRAM_FAILURE);
 		});
 	});
 
@@ -85,41 +85,47 @@ describe('Program', () => {
 			);
 		});
 	});
-	
+
 	describe('#createProgramWithBuiltInKernels', () => {
 		it('fails as context is invalid', () => {
 			assert.throws(
-				() => cl.createProgramWithBuiltInKernels(
-					null as unknown as cl.TClContext, [device], ['a'],
-				),
+				() =>
+					cl.createProgramWithBuiltInKernels(
+						null as unknown as cl.TClContext,
+						[device],
+						['a'],
+					),
 				new Error('Argument 0 must be of type `Object`'),
 			);
 		});
-		
+
 		it('fails as device list is empty', () => {
 			assert.throws(
 				() => cl.createProgramWithBuiltInKernels(context, [], ['a']),
 				cl.INVALID_VALUE,
 			);
 		});
-		
+
 		it('fails as names list is empty', () => {
 			assert.throws(
 				() => cl.createProgramWithBuiltInKernels(context, [device], []),
 				cl.INVALID_VALUE,
 			);
 		});
-		
+
 		it('fails as names list contains non string values', () => {
 			assert.throws(
-				() => cl.createProgramWithBuiltInKernels(
-					context, [device], [(() => 0) as unknown as string],
-				),
+				() =>
+					cl.createProgramWithBuiltInKernels(
+						context,
+						[device],
+						[(() => 0) as unknown as string],
+					),
 				cl.INVALID_VALUE,
 			);
 		});
 	});
-	
+
 	describe('#retainProgram', () => {
 		it('increments the reference count', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
@@ -129,7 +135,7 @@ describe('Program', () => {
 			cl.releaseProgram(prg);
 		});
 	});
-	
+
 	describe('#releaseProgram', () => {
 		it('decrements the reference count', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
@@ -140,7 +146,7 @@ describe('Program', () => {
 			cl.releaseProgram(prg);
 		});
 	});
-	
+
 	describe('#compileProgram', () => {
 		it('compiles a program', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
@@ -148,7 +154,7 @@ describe('Program', () => {
 			assert.strictEqual(ret, undefined);
 			cl.releaseProgram(prg);
 		});
-		
+
 		it('compiles a program - async', (_t, done) => {
 			const cb: cl.TBuildProgramCb = (prg, userData) => {
 				assert.ok(prg);
@@ -157,76 +163,64 @@ describe('Program', () => {
 				done();
 			};
 			const prg = cl.createProgramWithSource(context, squareKern);
-			const ret = cl.compileProgram(
-				prg,
-				null,
-				null,
-				null,
-				null,
-				cb,
-				{ done }
-			);
+			const ret = cl.compileProgram(prg, null, null, null, null, cb, { done });
 			assert.strictEqual(ret, undefined);
 		});
-		
+
 		it('compiles a program with header', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			const prg2 = cl.createProgramWithSource(context, squareKern);
-			
+
 			const ret = cl.compileProgram(prg, null, null, [prg2], ['prg2.h']);
 			assert.strictEqual(ret, undefined);
 			cl.releaseProgram(prg);
 		});
-		
+
 		it('fails with unnamed header', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			const prg2 = cl.createProgramWithSource(context, squareKern);
-			
-			assert.throws(
-				() => cl.compileProgram(prg, null, null, [prg2], []),
-			);
-			
+
+			assert.throws(() => cl.compileProgram(prg, null, null, [prg2], []));
+
 			cl.releaseProgram(prg);
 			cl.releaseProgram(prg2);
 		});
 	});
-	
+
 	describe('#linkProgram', () => {
 		it('fails as context is invalid', () => {
 			U.withProgram(context, squareKern, (prg) => {
-				assert.throws(
-					() => cl.linkProgram({} as unknown as cl.TClContext, null, null, [prg]),
+				assert.throws(() =>
+					cl.linkProgram({} as unknown as cl.TClContext, null, null, [prg]),
 				);
 			});
 		});
-		
+
 		it('fails as program is of bad type', () => {
 			U.withProgram(context, squareKern, () => {
-				assert.throws(
-					() => cl.linkProgram(
-						context, [device], null, [{} as unknown as cl.TClProgram],
-					),
+				assert.throws(() =>
+					cl.linkProgram(context, [device], null, [{} as unknown as cl.TClProgram]),
 				);
 			});
 		});
-		
+
 		it('links one compiled program', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			cl.compileProgram(prg);
-			
+
 			const nprg = cl.linkProgram(context, null, null, [prg]);
 			U.assertType(nprg, 'object');
-			
+
 			cl.releaseProgram(nprg);
 			cl.releaseProgram(prg);
 		});
-		
+
 		it('links one program and calls the callback', (t: TestContext, done: () => void) => {
 			t.plan(2); // plan for 2 assertions in event callback
-			
+
 			const prg = cl.createProgramWithSource(context, squareKern);
 			cl.compileProgram(prg);
-			
+
 			cl.linkProgram(
 				context,
 				null,
@@ -235,16 +229,16 @@ describe('Program', () => {
 				(linked, userData) => {
 					t.assert.ok(linked);
 					t.assert.strictEqual(userData, 'hello');
-					
+
 					cl.releaseProgram(linked);
 					done();
 				},
 				'hello',
 			);
-			
+
 			cl.releaseProgram(prg);
 		});
-		
+
 		it('links one compiled program with a list of devices', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			cl.compileProgram(prg, [device]);
@@ -252,22 +246,22 @@ describe('Program', () => {
 			U.assertType(nprg, 'object');
 			cl.releaseProgram(prg);
 		});
-		
+
 		it('links two compiled programs', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			cl.compileProgram(prg);
-			
+
 			const prg2 = cl.createProgramWithSource(context, squareCpyKern);
 			cl.compileProgram(prg2);
-			
+
 			const nprg = cl.linkProgram(context, null, null, [prg, prg2]);
 			U.assertType(nprg, 'object');
-			
+
 			cl.releaseProgram(prg);
 			cl.releaseProgram(prg2);
 		});
 	});
-	
+
 	describe('#getProgramInfo', () => {
 		const testForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
 			it(`returns the good type for ${key}`, () => {
@@ -277,7 +271,7 @@ describe('Program', () => {
 				});
 			});
 		};
-		
+
 		testForType('PROGRAM_REFERENCE_COUNT', (v) => U.assertType(v, 'number'));
 		testForType('PROGRAM_NUM_DEVICES', (v) => U.assertType(v, 'number'));
 		testForType('PROGRAM_CONTEXT', (v) => U.assertType(v, 'object'));
@@ -285,14 +279,14 @@ describe('Program', () => {
 		testForType('PROGRAM_BINARIES', (v) => U.assertType(v, 'array'));
 		testForType('PROGRAM_BINARY_SIZES', (v) => U.assertType(v, 'array'));
 		testForType('PROGRAM_SOURCE', (v) => U.assertType(v, 'string'));
-		
+
 		it('has the same program source as the one given', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			assert.ok(cl.getProgramInfo(prg, cl.PROGRAM_SOURCE) === squareKern);
 			cl.releaseProgram(prg);
 		});
 	});
-	
+
 	describe('#getProgramBuildInfo', () => {
 		const testForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
 			it(`returns the good type for ${key}`, () => {
@@ -302,16 +296,16 @@ describe('Program', () => {
 				});
 			});
 		};
-		
+
 		testForType('PROGRAM_BUILD_STATUS', (v) => U.assertType(v, 'number'));
 		testForType('PROGRAM_BUILD_OPTIONS', (v) => U.assertType(v, 'string'));
 		testForType('PROGRAM_BUILD_LOG', (v) => U.assertType(v, 'string'));
-		
+
 		it('returns the same options string that was passed before', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			const buildOpts = '-D NOCL_TEST=5';
 			cl.buildProgram(prg, null, buildOpts);
-			
+
 			const opt = cl.getProgramBuildInfo(prg, device, cl.PROGRAM_BUILD_OPTIONS) as string;
 			assert.ok(opt.includes(buildOpts));
 			cl.releaseProgram(prg);

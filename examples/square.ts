@@ -23,13 +23,15 @@ const kern2 = cl.createKernel(prog2, 'square');
 
 const inputsMem = cl.createBuffer(
 	context,
-	cl.MEM_READ_ONLY | cl.MEM_COPY_HOST_PTR, NVALUES * BYTES_PER_ELEMENT,
-	inputs
+	cl.MEM_READ_ONLY | cl.MEM_COPY_HOST_PTR,
+	NVALUES * BYTES_PER_ELEMENT,
+	inputs,
 );
 const outputsMem = cl.createBuffer(
 	context,
-	cl.MEM_WRITE_ONLY | cl.MEM_COPY_HOST_PTR, NVALUES * BYTES_PER_ELEMENT,
-	outputs
+	cl.MEM_WRITE_ONLY | cl.MEM_COPY_HOST_PTR,
+	NVALUES * BYTES_PER_ELEMENT,
+	outputs,
 );
 
 cl.setKernelArg(kern2, 0, 'uint*', inputsMem);

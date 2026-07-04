@@ -3,10 +3,9 @@ import { describe, it } from 'node:test';
 import * as cl from './index.ts';
 import * as U from './utils.ts';
 
-
 describe('Device', () => {
 	const { platform, device } = cl.quickStart();
-	
+
 	describe('#getDeviceIDs()', () => {
 		it('returns an array', () => {
 			const ids = cl.getDeviceIDs(platform);
@@ -14,7 +13,7 @@ describe('Device', () => {
 			assert.notEqual(ids.length, 0);
 		});
 	});
-	
+
 	const testBoolean = (name: keyof typeof cl) => {
 		it(`${name} returns a boolean`, (_t, done) => {
 			const val = cl.getDeviceInfo(device, cl[name] as number);
@@ -49,7 +48,7 @@ describe('Device', () => {
 			done();
 		});
 	};
-	
+
 	describe('#getDeviceInfo()', () => {
 		testString('DEVICE_NAME');
 		testString('DEVICE_VENDOR');
@@ -97,10 +96,10 @@ describe('Device', () => {
 		testInteger('DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE');
 		testInteger('DEVICE_PREFERRED_VECTOR_WIDTH_HALF');
 		testInteger('DEVICE_VENDOR_ID');
-		
+
 		testInteger('DEVICE_REFERENCE_COUNT');
 		testInteger('DEVICE_PARTITION_MAX_SUB_DEVICES');
-		
+
 		testInteger('DEVICE_GLOBAL_MEM_CACHE_SIZE');
 		testInteger('DEVICE_GLOBAL_MEM_SIZE');
 		testInteger('DEVICE_LOCAL_MEM_SIZE');
@@ -114,60 +113,54 @@ describe('Device', () => {
 		testInteger('DEVICE_MAX_PARAMETER_SIZE');
 		testInteger('DEVICE_MAX_WORK_GROUP_SIZE');
 		testInteger('DEVICE_PROFILING_TIMER_RESOLUTION');
-		
+
 		testInteger('DEVICE_IMAGE_MAX_BUFFER_SIZE');
 		testInteger('DEVICE_IMAGE_MAX_ARRAY_SIZE');
-		
+
 		// negative test cases
 		it('throws cl.INVALID_VALUE with name=-123.56', () => {
-			assert.throws(
-				() => cl.getDeviceInfo(device, -123.56),
-				cl.INVALID_VALUE,
-			);
+			assert.throws(() => cl.getDeviceInfo(device, -123.56), cl.INVALID_VALUE);
 		});
-		
-		it('throws cl.INVALID_VALUE with name=\'a string\'', () => {
+
+		it("throws cl.INVALID_VALUE with name='a string'", () => {
 			assert.throws(
 				() => cl.getDeviceInfo(device, 'a string' as unknown as number),
 				new Error('Argument 1 must be of type `Uint32`'),
 			);
 		});
-		
+
 		it('throws cl.INVALID_VALUE with name=123456', () => {
-			assert.throws(
-				() => cl.getDeviceInfo(device, 123456),
-				cl.INVALID_VALUE,
-			);
+			assert.throws(() => cl.getDeviceInfo(device, 123456), cl.INVALID_VALUE);
 		});
-		
+
 		it('throws cl.INVALID_DEVICE with device = null', () => {
 			assert.throws(
 				() => cl.getDeviceInfo(null as unknown as cl.TClDevice, 123),
 				new Error('Argument 0 must be of type `Object`'),
 			);
 		});
-		
-		it('throws cl.INVALID_DEVICE with device = \'a string\'', () => {
+
+		it("throws cl.INVALID_DEVICE with device = 'a string'", () => {
 			assert.throws(
 				() => cl.getDeviceInfo('a string' as unknown as cl.TClDevice, 123),
 				new Error('Argument 0 must be of type `Object`'),
 			);
 		});
-		
+
 		it('throws cl.INVALID_DEVICE with device = 123', () => {
 			assert.throws(
 				() => cl.getDeviceInfo(123 as unknown as cl.TClDevice, 123),
 				new Error('Argument 0 must be of type `Object`'),
 			);
 		});
-		
+
 		it('throws cl.INVALID_DEVICE with device = [1, 2, 3]', () => {
 			assert.throws(
 				() => cl.getDeviceInfo([1, 2, 3] as unknown as cl.TClDevice, 123),
 				new Error('Argument 0 must be a CL Wrapper.'),
 			);
 		});
-		
+
 		it('throws cl.INVALID_DEVICE with device = new Array()', () => {
 			assert.throws(
 				() => cl.getDeviceInfo([] as unknown as cl.TClDevice, 123),
@@ -175,19 +168,21 @@ describe('Device', () => {
 			);
 		});
 	});
-	
+
 	// Support for "sub-devices" seems to be retarded, anyway
 	describe('#createSubDevices()', () => {
 		it('throws cl.INVALID_DEVICE with device = null', () => {
 			assert.throws(
-				() => cl.createSubDevices(
-					null as unknown as cl.TClDevice,
-					[cl.DEVICE_PARTITION_EQUALLY, 8, 0],
-				),
+				() =>
+					cl.createSubDevices(null as unknown as cl.TClDevice, [
+						cl.DEVICE_PARTITION_EQUALLY,
+						8,
+						0,
+					]),
 				new Error('Argument 0 must be of type `Object`'),
 			);
 		});
-		
+
 		it('throws cl.INVALID_VALUE with properties = null', () => {
 			assert.throws(
 				() => cl.createSubDevices(device, null as unknown as number[]),
@@ -195,22 +190,16 @@ describe('Device', () => {
 			);
 		});
 	});
-	
+
 	describe('#retainDevice()', () => {
 		it('throws cl.INVALID_DEVICE if device is not a subdevice', () => {
-			assert.throws(
-				() => cl.retainDevice(device),
-				cl.INVALID_DEVICE,
-			);
+			assert.throws(() => cl.retainDevice(device), cl.INVALID_DEVICE);
 		});
 	});
-	
+
 	describe('#releaseDevice()', () => {
 		it('throws cl.INVALID_DEVICE if device is not a subdevice', () => {
-			assert.throws(
-				() => cl.releaseDevice(device),
-				cl.INVALID_DEVICE,
-			);
+			assert.throws(() => cl.releaseDevice(device), cl.INVALID_DEVICE);
 		});
 	});
 });

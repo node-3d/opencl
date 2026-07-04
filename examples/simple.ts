@@ -23,7 +23,9 @@ const bufferB = cl.createBuffer(context, cl.MEM_READ_ONLY, BYTE_SIZE);
 const bufferC = cl.createBuffer(context, cl.MEM_WRITE_ONLY, BYTE_SIZE);
 
 // Create a program object
-const program = cl.createProgramWithSource(context, `
+const program = cl.createProgramWithSource(
+	context,
+	`
 	__kernel
 	void vadd(__global int *a, __global int *b, __global int *c, uint num) {
 		size_t i = get_global_id(0);
@@ -31,7 +33,8 @@ const program = cl.createProgramWithSource(context, `
 			c[i] = a[i] + b[i];
 		}
 	}
-`);
+`,
+);
 cl.buildProgram(program);
 
 // Create a kernel object

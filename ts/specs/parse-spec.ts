@@ -6,24 +6,19 @@ type ParsedSpec = {
 };
 
 const parseSpec = (name: string): ParsedSpec => {
+	// oxlint-disable-next-line node/no-sync
 	const text = readFileSync(new URL(`${name}.idl`, import.meta.url)).toString();
-	
-	const constants = (text.match(
-		/const CL\w+ \w+/gu,
-	) ?? []).map(
-		(str) => str.replace(/const CL\w+ /u, ''),
+
+	const constants = (text.match(/const CL\w+ \w+/gu) ?? []).map((str) =>
+		str.replace(/const CL\w+ /u, ''),
 	);
-	
-	const methods = (text.match(
-		/\w+\(/gu,
-	) ?? []).map(
-		(str) => str.replace(/\($/u, ''),
-	).filter(
-		(str) => (str !== 'typedef' && str !== 'Constructor')
-	).filter(
-		(a, i, v) => (v.indexOf(a) === i)
-	).toSorted();
-	
+
+	const methods = (text.match(/\w+\(/gu) ?? [])
+		.map((str) => str.replace(/\($/u, ''))
+		.filter((str) => str !== 'typedef' && str !== 'Constructor')
+		.filter((a, i, v) => v.indexOf(a) === i)
+		.toSorted();
+
 	return {
 		constants,
 		methods,

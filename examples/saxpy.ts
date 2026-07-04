@@ -17,7 +17,7 @@ const C = new Float32Array(VECTOR_SIZE);
 
 for (let i = 0; i < VECTOR_SIZE; i++) {
 	A[i] = i;
-	B[i] = (VECTOR_SIZE - i);
+	B[i] = VECTOR_SIZE - i;
 	C[i] = 0;
 }
 
@@ -75,12 +75,26 @@ const localWS = undefined; // process one list at a time
 const globalWS = [VECTOR_SIZE]; // process entire list
 
 const kernelEvent = cl.enqueueNDRangeKernel(
-	queue, kernel, 1, undefined, globalWS, localWS, writeEvents, true,
+	queue,
+	kernel,
+	1,
+	undefined,
+	globalWS,
+	localWS,
+	writeEvents,
+	true,
 ) as cl.TClEvent;
 
 // get results and block while getting them
 const readEvent = cl.enqueueReadBuffer(
-	queue, cBuffer, false, 0, size, C, [kernelEvent], true,
+	queue,
+	cBuffer,
+	false,
+	0,
+	size,
+	C,
+	[kernelEvent],
+	true,
 ) as cl.TClEvent;
 
 cl.waitForEvents([readEvent]);

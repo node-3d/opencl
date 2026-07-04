@@ -1,10 +1,8 @@
 import { strict as assert } from 'node:assert';
 import * as cl from './index.ts';
 
-
-export const newQueue = (context: cl.TClContext, device: cl.TClDevice): cl.TClQueue => (
-	cl.createCommandQueue(context, device, null)
-);
+export const newQueue = (context: cl.TClContext, device: cl.TClDevice): cl.TClQueue =>
+	cl.createCommandQueue(context, device, null);
 
 export const withProgram = (
 	context: cl.TClContext,
@@ -14,7 +12,7 @@ export const withProgram = (
 	const prg = cl.createProgramWithSource(context, source);
 	cl.buildProgram(prg, null, '-cl-kernel-arg-info');
 	try {
-		cb(prg);
+		return cb(prg);
 	} finally {
 		cl.releaseProgram(prg);
 	}
@@ -29,7 +27,7 @@ export const withProgramAsync = (
 	cl.buildProgram(prg, null, '-cl-kernel-arg-info');
 
 	try {
-		cb(prg, () => cl.releaseProgram(prg));
+		return cb(prg, () => cl.releaseProgram(prg));
 	} catch {
 		cl.releaseProgram(prg);
 	}
@@ -41,8 +39,11 @@ export const withCQ = (
 	cb: (p: cl.TClQueue) => void,
 ): void => {
 	const cq = newQueue(context, device);
-	try { cb(cq); }
-	finally { cl.releaseCommandQueue(cq); }
+	try {
+		return cb(cq);
+	} finally {
+		cl.releaseCommandQueue(cq);
+	}
 };
 
 export const withAsyncCQ = (
@@ -52,7 +53,7 @@ export const withAsyncCQ = (
 ): void => {
 	const cq = newQueue(context, device);
 	try {
-		cb(cq, () => cl.releaseCommandQueue(cq));
+		return cb(cq, () => cl.releaseCommandQueue(cq));
 	} catch {
 		cl.releaseCommandQueue(cq);
 	}
@@ -62,22 +63,17 @@ export const assertType = (v: unknown, name: string): void => {
 	if (name === 'object') {
 		assert.ok(v);
 	}
-	
+
 	if (name === 'array') {
 		assert.ok(v);
+		assert.strictEqual(typeof v, 'object', 'assertType(v, \'array\'): "v" must be an object');
 		assert.strictEqual(
-			typeof v, 'object',
-			'assertType(v, \'array\'): "v" must be an object',
-		);
-		assert.strictEqual(
-			typeof (v as unknown[]).length, 'number',
+			typeof (v as unknown[]).length,
+			'number',
 			'assertType(v, \'array\'): "v.length" must be a number',
 		);
 		return;
 	}
-	
-	assert.strictEqual(
-		typeof v, name,
-		`assertType(v, '${name}'): the type is "${typeof v}"`,
-	);
+
+	assert.strictEqual(typeof v, name, `assertType(v, '${name}'): the type is "${typeof v}"`);
 };
