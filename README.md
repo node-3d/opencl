@@ -95,7 +95,7 @@ matching `release*` function when ownership ends.
 	`);
 	cl.buildProgram(program);
 	```
-5. Fetch and setup a kernel from within the program:
+5. Fetch and set up a kernel from within the program:
 	```ts
 	// Create a kernel object
 	const kernel = cl.createKernel(program, 'vadd');
