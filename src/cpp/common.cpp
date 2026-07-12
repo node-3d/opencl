@@ -3,7 +3,7 @@
 
 namespace opencl {
 
-void getPtrAndLen(Napi::Object obj, void** ptr, size_t *len) {
+void getPtrAndLen(Napi::Object obj, void **ptr, size_t *len) {
 	*ptr = nullptr;
 	int intSize = 0;
 	if (obj.IsTypedArray() || obj.IsArrayBuffer()) {
@@ -16,7 +16,7 @@ void getPtrAndLen(Napi::Object obj, void** ptr, size_t *len) {
 	}
 }
 
-const char* getExceptionMessage(const cl_int code) {
+const char *getExceptionMessage(const cl_int code) {
 	switch (code) {
 		case CL_SUCCESS:
 			return "Success!";

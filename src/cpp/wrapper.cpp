@@ -10,7 +10,7 @@ struct TypeInfo {
 };
 
 
-int noop(void*) {
+int noop(void *) {
 	return 0;
 }
 
@@ -18,41 +18,15 @@ TypeInfo typeInfo[] = {
 	{ "ERROR", noop, noop },
 	{ "cl_platform_id", noop, noop },
 	{ "cl_device_id", noop, noop },
-	{
-		"cl_context",
-		reinterpret_cast<cl_func>(clReleaseContext),
-		reinterpret_cast<cl_func>(clRetainContext)
-	},
-	{
-		"cl_program",
-		reinterpret_cast<cl_func>(clReleaseProgram),
-		reinterpret_cast<cl_func>(clRetainProgram)
-	},
-	{
-		"cl_kernel",
-		reinterpret_cast<cl_func>(clReleaseKernel),
-		reinterpret_cast<cl_func>(clRetainKernel)
-	},
-	{
-		"cl_mem",
-		reinterpret_cast<cl_func>(clReleaseMemObject),
-		reinterpret_cast<cl_func>(clRetainMemObject)
-	},
-	{
-		"cl_sampler",
-		reinterpret_cast<cl_func>(clReleaseSampler),
-		reinterpret_cast<cl_func>(clRetainSampler)
-	},
-	{
-		"cl_command_queue",
-		reinterpret_cast<cl_func>(clReleaseCommandQueue),
-		reinterpret_cast<cl_func>(clRetainCommandQueue)
-	},
-	{
-		"cl_event",
-		reinterpret_cast<cl_func>(clReleaseEvent),
-		reinterpret_cast<cl_func>(clRetainEvent)
-	},
+	{ "cl_context", reinterpret_cast<cl_func>(clReleaseContext), reinterpret_cast<cl_func>(clRetainContext) },
+	{ "cl_program", reinterpret_cast<cl_func>(clReleaseProgram), reinterpret_cast<cl_func>(clRetainProgram) },
+	{ "cl_kernel", reinterpret_cast<cl_func>(clReleaseKernel), reinterpret_cast<cl_func>(clRetainKernel) },
+	{ "cl_mem", reinterpret_cast<cl_func>(clReleaseMemObject), reinterpret_cast<cl_func>(clRetainMemObject) },
+	{ "cl_sampler", reinterpret_cast<cl_func>(clReleaseSampler), reinterpret_cast<cl_func>(clRetainSampler) },
+	{ "cl_command_queue",
+	  reinterpret_cast<cl_func>(clReleaseCommandQueue),
+	  reinterpret_cast<cl_func>(clRetainCommandQueue) },
+	{ "cl_event", reinterpret_cast<cl_func>(clReleaseEvent), reinterpret_cast<cl_func>(clRetainEvent) },
 };
 
 
@@ -97,9 +71,10 @@ Napi::Object Wrapper::from(Napi::Env env, cl_event raw) {
 }
 
 
-Wrapper::Wrapper(const Napi::CallbackInfo& info) { NAPI_ENV;
+Wrapper::Wrapper(const Napi::CallbackInfo &info) {
+	NAPI_ENV;
 	super(info);
-	
+
 	if (!info[0].IsExternal() || !info[1].IsNumber()) {
 		_data = nullptr;
 		_released = 0;
@@ -109,10 +84,10 @@ Wrapper::Wrapper(const Napi::CallbackInfo& info) { NAPI_ENV;
 		JS_THROW("Failed to construct a Wrapper.");
 		return;
 	}
-	
-	Napi::External<void> extParam = info[0].As< Napi::External<void> >();
+
+	Napi::External<void> extParam = info[0].As<Napi::External<void>>();
 	int32_t infoIdx = info[1].ToNumber().Int32Value();
-	
+
 	_data = extParam.Data();
 	_acquire = typeInfo[infoIdx].acquire;
 	_release = typeInfo[infoIdx].release;
@@ -120,25 +95,27 @@ Wrapper::Wrapper(const Napi::CallbackInfo& info) { NAPI_ENV;
 }
 
 
-Wrapper::~Wrapper() {
-}
+Wrapper::~Wrapper() {}
 
 
-JS_IMPLEMENT_METHOD(Wrapper, toString) { NAPI_ENV;
+JS_IMPLEMENT_METHOD(Wrapper, toString) {
+	NAPI_ENV;
 	std::stringstream out;
 	out << "{ " << _typeName << " @" << _data << " }";
 	RET_STR(out.str());
 }
 
-JS_IMPLEMENT_METHOD(Wrapper, valueOf) { NAPI_ENV;
+JS_IMPLEMENT_METHOD(Wrapper, valueOf) {
+	NAPI_ENV;
 	RET_X64(reinterpret_cast<uint64_t>(_data));
 }
 
-JS_IMPLEMENT_GETTER(Wrapper, _) { NAPI_ENV;
+JS_IMPLEMENT_GETTER(Wrapper, _) {
+	NAPI_ENV;
 	RET_X64(reinterpret_cast<uint64_t>(_data));
 }
 
-void Wrapper::throwArrayEx(Napi::Env env, int i, const char* msg) {
+void Wrapper::throwArrayEx(Napi::Env env, int i, const char *msg) {
 	std::stringstream out;
 	out << "Array item #" << i << " " << msg;
 	JS_THROW(out.str());

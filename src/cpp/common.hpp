@@ -10,29 +10,31 @@
 
 #include <CL/opencl.h>
 
-#if defined (__APPLE__)
-	#define HAS_clGetContextInfo
+#if defined(__APPLE__)
+#define HAS_clGetContextInfo
 #elif defined(_WIN32)
-	#define strcasecmp _stricmp
-	#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
 #endif
 
-#define CHECK_ERR(code) {                                        \
-	cl_int _err = (code);                                        \
-	if (_err != CL_SUCCESS) {                                    \
-		THROW_ERR(_err);                                         \
-	}                                                            \
-}
+#define CHECK_ERR(code)                                                                                      \
+	{                                                                                                        \
+		cl_int _err = (code);                                                                                \
+		if (_err != CL_SUCCESS) {                                                                            \
+			THROW_ERR(_err);                                                                                 \
+		}                                                                                                    \
+	}
 
-#define THROW_ERR(code) {                                        \
-	JS_THROW(opencl::getExceptionMessage(code));                 \
-	RET_UNDEFINED;                                               \
-}
+#define THROW_ERR(code)                                                                                      \
+	{                                                                                                        \
+		JS_THROW(opencl::getExceptionMessage(code));                                                         \
+		RET_UNDEFINED;                                                                                       \
+	}
 
 namespace opencl {
 
-void getPtrAndLen(Napi::Object obj, void** ptr, size_t *len);
-const char* getExceptionMessage(cl_int code);
+void getPtrAndLen(Napi::Object obj, void **ptr, size_t *len);
+const char *getExceptionMessage(cl_int code);
 
 inline Napi::Number NewInt64(napi_env env, int64_t val) {
 	napi_value value;
