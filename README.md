@@ -11,20 +11,7 @@ This is a part of [Node3D](https://github.com/node-3d) project.
 npm install @node-3d/opencl
 ```
 
-## Binary Origin
 
-Release archives are built by this repository's public GitHub Actions workflows.
-
-Attestations: https://github.com/node-3d/opencl/attestations
-
-To verify a downloaded archive:
-
-```bash
-gh release download <tag> -R node-3d/opencl -p <platform>.gz
-gh attestation verify <platform>.gz -R node-3d/opencl
-```
-
-> This addon is ABI-compatible across Node.js versions. **There is no compilation** during `npm install`.
 
 **Node.js** addon with **OpenCL 1.2** bindings. This is not WebCL.
 
@@ -146,3 +133,18 @@ matching `release*` function when ownership ends.
 
 See `examples` for more details. The full code of the above example is available
 [here](examples/simple.ts).
+
+## Binary Origin
+
+Release archives are built by this repository's public GitHub Actions workflows.
+
+Attestations: https://github.com/node-3d/opencl/attestations
+
+To verify a downloaded archive:
+
+```bash
+gh release download <tag> -R node-3d/opencl -p <platform>.gz
+gh attestation verify <platform>.gz -R node-3d/opencl
+```
+
+> This addon is ABI-compatible across Node.js versions. **There is no compilation** during `npm install`.
