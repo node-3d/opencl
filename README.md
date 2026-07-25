@@ -15,6 +15,9 @@ npm install @node-3d/opencl
 
 **Node.js** addon with **OpenCL 1.2** bindings. This is not WebCL.
 
+Prebuilt addon binaries: Windows x64/ARM64, Linux x64/ARM64, macOS x64/ARM64.
+An OpenCL runtime/ICD is still required on Windows and Linux.
+
 The API directly reflects the low-level **OpenCL** interface. There are minor changes
 similar to how WebGL is different from OpenGL.
 * All `cl*` methods are available as `cl.*` starting lowercase,

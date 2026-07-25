@@ -13,10 +13,31 @@ on:
 
 jobs:
   unit-tests:
-    name: Unit Tests
+    name: Unit Tests (${{ matrix.target }})
     strategy:
-        matrix:
-          os: [ubuntu-22.04, ubuntu-22.04-arm, windows-2022, macos-26]
+      fail-fast: false
+      matrix:
+        include:
+          - target: windows-x64
+            os: windows-2022
+            node_arch: x64
+            native_tests: true
+          - target: linux-x64
+            os: ubuntu-22.04
+            node_arch: x64
+            native_tests: true
+          - target: linux-arm64
+            os: ubuntu-22.04-arm
+            node_arch: arm64
+            native_tests: true
+          - target: darwin-x64
+            os: macos-26
+            node_arch: x64
+            native_tests: false
+          - target: darwin-arm64
+            os: macos-26
+            node_arch: arm64
+            native_tests: false
 
     runs-on: ${{ matrix.os }}
 
@@ -31,19 +52,20 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 24.13.0
+          architecture: ${{ matrix.node_arch }}
           cache: 'npm'
 
       - name: Install Modules
         run: npm ci
 
       - name: Install OpenCL - Ubuntu ARM
-        if: matrix.os == 'ubuntu-22.04-arm'
+        if: matrix.target == 'linux-arm64'
         run: |
           sudo apt update -qq
           sudo apt install -qq ocl-icd-opencl-dev pocl-opencl-icd
 
       - name: Install OpenCL - Windows 1
-        if: matrix.os == 'windows-2022'
+        if: matrix.target == 'windows-x64'
         run: |
           curl -o opencl-installer.exe 'https://registrationcenter-download.intel.com/akdlm/IRC_NAS/b6dccdb7-b503-41ea-bd4b-a78e9c2d8dd6/w_opencl_runtime_p_2025.1.0.972.exe'
           ./opencl-installer.exe --s --x --f ocl
@@ -52,7 +74,7 @@ jobs:
 
       - name: Install OpenCL - Windows 2
         shell: pwsh
-        if: matrix.os == 'windows-2022'
+        if: matrix.target == 'windows-x64'
         run: |
           $file = "opencl-rt.msi"
           $log = "install.log"
@@ -62,7 +84,7 @@ jobs:
           $procLog.Kill()
 
       - name: Install OpenCL - Ubuntu
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.target == 'linux-x64'
         run: |
           # download the key to system keyring
           wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
@@ -74,11 +96,13 @@ jobs:
 
       - name: Build Current Binary
         run: npm run build:rebuild
+        env:
+          npm_config_arch: ${{ matrix.node_arch }}
 
       - name: Run Unit Tests
-        if: matrix.os != 'macos-26' && matrix.os != 'ubuntu-22.04-arm'
+        if: ${{ matrix.native_tests }}
         run: npm run test:ci
 
-      - name: Run Index Tests - MacOS
-        if: matrix.os == 'macos-26' || matrix.os == 'ubuntu-22.04-arm'
-        run: node index.js
+      - name: Run Export Tests
+        if: ${{ !matrix.native_tests }}
+        run: node --test "ts/exports.test.ts"
