@@ -9,27 +9,27 @@ const squareKern = fs
 	.toString();
 
 let context = null as unknown as cl.TClContext;
-let device = null as unknown as cl.TClDevice;
 let isD3DDevice = false;
 
 before(() => {
 	const setup = cl.quickStart();
-	({ context, device } = setup);
+	({ context } = setup);
 	isD3DDevice = U.isD3DDevice(setup);
 });
 
-describe('Program - buildProgram invalid source', () => {
-	it('throws if program is invalid', (t) => {
+describe('Kernel - setKernelArg explicit extra', () => {
+	it('fails to pass an extra argument', (t) => {
 		if (isD3DDevice) {
-			t.skip('OpenCLOn12 crashes while building invalid program source.');
+			t.skip('OpenCLOn12 does not reliably reject extra explicit kernel args.');
 			return;
 		}
 
-		const prg = cl.createProgramWithSource(context, `${squareKern}????`);
-		try {
-			assert.throws(() => cl.buildProgram(prg, [device]), cl.BUILD_PROGRAM_FAILURE);
-		} finally {
-			cl.releaseProgram(prg);
-		}
+		U.withProgram(context, squareKern, (prg) => {
+			const k = cl.createKernel(prg, 'square');
+
+			assert.throws(() => cl.setKernelArg(k, 3, 'int', 5), cl.INVALID_ARG_INDEX);
+
+			cl.releaseKernel(k);
+		});
 	});
 });

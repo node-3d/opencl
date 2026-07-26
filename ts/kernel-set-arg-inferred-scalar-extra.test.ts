@@ -9,13 +9,21 @@ const squareKern = fs
 	.toString();
 
 let context = null as unknown as cl.TClContext;
+let isD3DDevice = false;
 
 before(() => {
-	({ context } = cl.quickStart());
+	const setup = cl.quickStart();
+	({ context } = setup);
+	isD3DDevice = U.isD3DDevice(setup);
 });
 
 describe('Kernel - setKernelArg inferred scalar extra', () => {
-	it('fails to pass an extra argument', () => {
+	it('fails to pass an extra argument', (t) => {
+		if (isD3DDevice) {
+			t.skip('OpenCLOn12 crashes while checking inferred extra kernel args.');
+			return;
+		}
+
 		U.withProgram(context, squareKern, (prg) => {
 			const k = cl.createKernel(prg, 'square');
 
