@@ -58,7 +58,7 @@ describe('Program', () => {
 				done();
 			};
 			const prg = cl.createProgramWithSource(context, squareKern);
-			const ret = cl.buildProgram(prg, undefined, undefined, cb, { done });
+			const ret = cl.buildProgram(prg, [device], undefined, cb, { done });
 			assert.strictEqual(ret, undefined);
 		});
 
@@ -168,7 +168,7 @@ describe('Program', () => {
 				done();
 			};
 			const prg = cl.createProgramWithSource(context, squareKern);
-			const ret = cl.compileProgram(prg, null, null, null, null, cb, { done });
+			const ret = cl.compileProgram(prg, [device], null, null, null, cb, { done });
 			assert.strictEqual(ret, undefined);
 		});
 
