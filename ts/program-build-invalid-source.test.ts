@@ -14,16 +14,13 @@ before(() => {
 	({ context, device } = cl.quickStart());
 });
 
-describe('Program - buildProgram invalid', () => {
-	it('throws if program is nullptr', () => {
-		assert.throws(
-			() => cl.buildProgram(null as unknown as cl.TClProgram),
-			new Error('Argument 0 must be of type `Object`'),
-		);
-	});
-
+describe('Program - buildProgram invalid source', () => {
 	it('throws if program is invalid', () => {
 		const prg = cl.createProgramWithSource(context, `${squareKern}????`);
-		assert.throws(() => cl.buildProgram(prg, [device]), cl.BUILD_PROGRAM_FAILURE);
+		try {
+			assert.throws(() => cl.buildProgram(prg, [device]), cl.BUILD_PROGRAM_FAILURE);
+		} finally {
+			cl.releaseProgram(prg);
+		}
 	});
 });

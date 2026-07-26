@@ -14,17 +14,7 @@ before(() => {
 	({ context } = cl.quickStart());
 });
 
-describe('Kernel - setKernelArg inferred scalar', () => {
-	it('accepts an integer as third argument', () => {
-		U.withProgram(context, squareKern, (prg) => {
-			const k = cl.createKernel(prg, 'square');
-
-			assert.ok(cl.setKernelArg(k, 2, null, 5) === cl.SUCCESS);
-
-			cl.releaseKernel(k);
-		});
-	});
-
+describe('Kernel - setKernelArg inferred scalar invalid primitive', () => {
 	it('fails when passed a char as third argument', () => {
 		U.withProgram(context, squareKern, (prg) => {
 			const k = cl.createKernel(prg, 'square');
@@ -40,28 +30,6 @@ describe('Kernel - setKernelArg inferred scalar', () => {
 			const k = cl.createKernel(prg, 'square');
 
 			assert.throws(() => cl.setKernelArg(k, 2, null, [5, 10, 15]), cl.INVALID_ARG_VALUE);
-
-			cl.releaseKernel(k);
-		});
-	});
-
-	it('fails when passed a memobject as third argument', () => {
-		U.withProgram(context, squareKern, (prg) => {
-			const k = cl.createKernel(prg, 'square');
-			const mem = cl.createBuffer(context, 0, 8, null);
-
-			assert.throws(() => cl.setKernelArg(k, 2, null, mem), cl.INVALID_ARG_VALUE);
-
-			cl.releaseMemObject(mem);
-			cl.releaseKernel(k);
-		});
-	});
-
-	it('fails to pass an extra argument', () => {
-		U.withProgram(context, squareKern, (prg) => {
-			const k = cl.createKernel(prg, 'square');
-
-			assert.throws(() => cl.setKernelArg(k, 3, null, 5));
 
 			cl.releaseKernel(k);
 		});
