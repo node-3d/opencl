@@ -18,6 +18,19 @@ npm install @node-3d/opencl
 Prebuilt addon binaries: Windows x64/ARM64, Linux x64/ARM64, macOS x64/ARM64.
 An OpenCL runtime/ICD is still required on Windows and Linux.
 
+## Platform Notes
+
+OpenCL behavior depends on the installed platform runtime. This package is a thin
+binding layer and generally forwards calls and status codes directly to the native
+OpenCL implementation, so validation details can differ between vendors.
+
+Windows ARM64 uses Microsoft's OpenCLOn12 compatibility layer in CI. That layer exposes
+OpenCL through Direct3D 12, which is currently the practical way to run OpenCL on
+GitHub-hosted Windows ARM64 runners. It can differ from vendor OpenCL runtimes for
+invalid-input edge cases, especially around program build failures and kernel argument
+validation. Valid kernel build, argument setup, queue, buffer, and execution paths are
+still tested there.
+
 The API directly reflects the low-level **OpenCL** interface. There are minor changes
 similar to how WebGL is different from OpenGL.
 * All `cl*` methods are available as `cl.*` starting lowercase,
