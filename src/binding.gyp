@@ -2,6 +2,7 @@
 	'variables': {
 		'bin': '<!(node -e "import(\'@node-3d/addon-tools\').then((m) => m.printBin())")',
 		'cl_include': 'include',
+		'opencl_lib_machine%': 'X64',
 	},
 	'targets': [
 		{
@@ -15,6 +16,11 @@
 				'<(cl_include)',
 			],
 			'conditions': [
+				['OS=="win" and target_arch=="arm64"', {
+					'variables': {
+						'opencl_lib_machine': 'ARM64',
+					},
+				}],
 				['OS=="linux"', {
 					'libraries': [
 						"-Wl,-rpath,'$$ORIGIN'",
@@ -25,8 +31,21 @@
 					'libraries': ['-framework OpenCL'],
 				}],
 				['OS=="win"', {
-					'library_dirs': ['<(module_root_dir)/lib'],
-					'libraries': ['OpenCL.lib'],
+					'actions': [
+						{
+							'action_name': 'make_opencl_import_lib',
+							'inputs': ['lib/OpenCL.def'],
+							'outputs': ['<(INTERMEDIATE_DIR)/OpenCL.lib'],
+							'action': [
+								'lib.exe',
+								'/nologo',
+								'/def:<(module_root_dir)/lib/OpenCL.def',
+								'/machine:<(opencl_lib_machine)',
+								'/out:<(INTERMEDIATE_DIR)/OpenCL.lib',
+							],
+						},
+					],
+					'libraries': ['<(INTERMEDIATE_DIR)/OpenCL.lib'],
 				}],
 			],
 		},
