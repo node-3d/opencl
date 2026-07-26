@@ -1,4 +1,5 @@
 #include <uv.h>
+#include <cstring>
 
 #include "wrapper.hpp"
 #include "notify-helper.hpp"
@@ -371,29 +372,25 @@ JS_METHOD(getProgramInfo) {
 			    clGetProgramInfo(prog, CL_PROGRAM_BINARY_SIZES, nsizes * sizeof(size_t), sizes.get(), nullptr)
 			);
 
-			size_t n_size_total = 0;
-			unsigned char **bn = new unsigned char *[nsizes];
-			for (size_t i = 0; i < nsizes; i++) {
-				n_size_total += sizes[i];
-				bn[i] = new unsigned char[sizes[i]];
+			std::vector<std::unique_ptr<unsigned char[]>> binaries;
+			std::vector<unsigned char *> binary_ptrs;
+			binaries.reserve(nsizes);
+			binary_ptrs.reserve(nsizes);
+			for (cl_uint i = 0; i < nsizes; i++) {
+				binaries.push_back(std::unique_ptr<unsigned char[]>(new unsigned char[sizes[i]]));
+				binary_ptrs.push_back(binaries[i].get());
 			}
 
-			size_t n_ret_size = 0;
-			CHECK_ERR(clGetProgramInfo(prog, CL_PROGRAM_BINARIES, n_size_total, nullptr, &n_ret_size));
-
-			CHECK_ERR(clGetProgramInfo(prog, CL_PROGRAM_BINARIES, n_ret_size, bn, nullptr));
+			CHECK_ERR(clGetProgramInfo(
+			    prog, CL_PROGRAM_BINARIES, nsizes * sizeof(unsigned char *), binary_ptrs.data(), nullptr
+			));
 
 			Napi::Array arr = JS_ARRAY;
 			for (cl_uint i = 0; i < nsizes; i++) {
-				void *data = reinterpret_cast<void *>(bn[i]);
-				Napi::ArrayBuffer buf = Napi::ArrayBuffer::New(env, data, sizes[i]);
+				Napi::ArrayBuffer buf = Napi::ArrayBuffer::New(env, sizes[i]);
+				memcpy(buf.Data(), binary_ptrs[i], sizes[i]);
 				arr.Set(i, buf);
 			}
-
-			for (size_t i = 0; i < nsizes; i++) {
-				delete[] bn[i];
-			}
-			delete[] bn;
 
 			RET_VALUE(arr);
 		}

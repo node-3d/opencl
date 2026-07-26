@@ -14,7 +14,7 @@ before(() => {
 	({ context, device } = cl.quickStart());
 });
 
-describe('Program - buildProgram', () => {
+describe('Program - buildProgram valid', () => {
 	it('builds using a valid program and a given device', () => {
 		const prg = cl.createProgramWithSource(context, squareKern);
 		const ret = cl.buildProgram(prg, [device]);
@@ -33,39 +33,6 @@ describe('Program - buildProgram', () => {
 		const prg = cl.createProgramWithSource(context, squareKern);
 		const ret = cl.buildProgram(prg, null, '-D NOCL_TEST=5');
 		assert.strictEqual(ret, undefined);
-		cl.releaseProgram(prg);
-	});
-
-	it('throws if program is nullptr', () => {
-		assert.throws(
-			() => cl.buildProgram(null as unknown as cl.TClProgram),
-			new Error('Argument 0 must be of type `Object`'),
-		);
-	});
-
-	it('throws if program is INVALID', () => {
-		const prg = cl.createProgramWithSource(context, `${squareKern}????`);
-		assert.throws(() => cl.buildProgram(prg, [device]), cl.BUILD_PROGRAM_FAILURE);
-	});
-});
-
-describe('Program - retainProgram', () => {
-	it('increments the reference count', () => {
-		const prg = cl.createProgramWithSource(context, squareKern);
-		cl.retainProgram(prg);
-		const after = cl.getProgramInfo(prg, cl.PROGRAM_REFERENCE_COUNT);
-		assert.strictEqual(after, 2);
-		cl.releaseProgram(prg);
-	});
-});
-
-describe('Program - releaseProgram', () => {
-	it('decrements the reference count', () => {
-		const prg = cl.createProgramWithSource(context, squareKern);
-		cl.retainProgram(prg);
-		cl.releaseProgram(prg);
-		const after = cl.getProgramInfo(prg, cl.PROGRAM_REFERENCE_COUNT);
-		assert.strictEqual(after, 1);
 		cl.releaseProgram(prg);
 	});
 });

@@ -9,13 +9,12 @@ const squareKern = fs
 	.toString();
 
 let context = null as unknown as cl.TClContext;
-let device = null as unknown as cl.TClDevice;
 
 before(() => {
-	({ context, device } = cl.quickStart());
+	({ context } = cl.quickStart());
 });
 
-describe('Program - getProgramInfo', () => {
+describe('Program - getProgramInfo basic', () => {
 	const testForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
 		it(`returns the good type for ${key}`, () => {
 			U.withProgram(context, squareKern, (prg) => {
@@ -29,38 +28,11 @@ describe('Program - getProgramInfo', () => {
 	testForType('PROGRAM_NUM_DEVICES', (v) => U.assertType(v, 'number'));
 	testForType('PROGRAM_CONTEXT', (v) => U.assertType(v, 'object'));
 	testForType('PROGRAM_DEVICES', (v) => U.assertType(v, 'array'));
-	testForType('PROGRAM_BINARIES', (v) => U.assertType(v, 'array'));
-	testForType('PROGRAM_BINARY_SIZES', (v) => U.assertType(v, 'array'));
 	testForType('PROGRAM_SOURCE', (v) => U.assertType(v, 'string'));
 
 	it('has the same program source as the one given', () => {
 		const prg = cl.createProgramWithSource(context, squareKern);
 		assert.ok(cl.getProgramInfo(prg, cl.PROGRAM_SOURCE) === squareKern);
-		cl.releaseProgram(prg);
-	});
-});
-
-describe('Program - getProgramBuildInfo', () => {
-	const testForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
-		it(`returns the good type for ${key}`, () => {
-			U.withProgram(context, squareKern, (prg) => {
-				const val = cl.getProgramBuildInfo(prg, device, cl[key] as unknown as number);
-				_assert(val);
-			});
-		});
-	};
-
-	testForType('PROGRAM_BUILD_STATUS', (v) => U.assertType(v, 'number'));
-	testForType('PROGRAM_BUILD_OPTIONS', (v) => U.assertType(v, 'string'));
-	testForType('PROGRAM_BUILD_LOG', (v) => U.assertType(v, 'string'));
-
-	it('returns the same options string that was passed before', () => {
-		const prg = cl.createProgramWithSource(context, squareKern);
-		const buildOpts = '-D NOCL_TEST=5';
-		cl.buildProgram(prg, null, buildOpts);
-
-		const opt = cl.getProgramBuildInfo(prg, device, cl.PROGRAM_BUILD_OPTIONS) as string;
-		assert.ok(opt.includes(buildOpts));
 		cl.releaseProgram(prg);
 	});
 });
