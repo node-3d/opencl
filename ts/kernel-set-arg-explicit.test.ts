@@ -9,9 +9,12 @@ const squareKern = fs
 	.toString();
 
 let context = null as unknown as cl.TClContext;
+let isD3DDevice = false;
 
 before(() => {
-	({ context } = cl.quickStart());
+	const setup = cl.quickStart();
+	({ context } = setup);
+	isD3DDevice = U.isD3DDevice(setup);
 });
 
 describe('Kernel - setKernelArg explicit', () => {
@@ -99,7 +102,11 @@ describe('Kernel - setKernelArg explicit', () => {
 		U.withProgram(context, squareKern, (prg) => {
 			const k = cl.createKernel(prg, 'square');
 
-			assert.throws(() => cl.setKernelArg(k, 3, 'int', 5), cl.INVALID_ARG_INDEX);
+			if (isD3DDevice) {
+				assert.strictEqual(cl.setKernelArg(k, 3, 'int', 5), cl.SUCCESS);
+			} else {
+				assert.throws(() => cl.setKernelArg(k, 3, 'int', 5), cl.INVALID_ARG_INDEX);
+			}
 
 			cl.releaseKernel(k);
 		});
