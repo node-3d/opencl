@@ -95,7 +95,14 @@ jobs:
           $file = "opencl-on12-arm64.appx"
           Invoke-WebRequest -Uri $url -OutFile $file
           Add-AppxPackage -Path $file
-          reg query "HKLM\SOFTWARE\Khronos\OpenCL\Vendors" /s
+          Get-AppxPackage Microsoft.D3DMappingLayers | Format-List Name,PackageFullName,Architecture,InstallLocation
+          foreach ($key in "HKLM:\SOFTWARE\Khronos\OpenCL\Vendors", "HKCU:\SOFTWARE\Khronos\OpenCL\Vendors") {
+            if (Test-Path $key) {
+              Get-ItemProperty $key | Format-List
+            } else {
+              Write-Host "OpenCL ICD registry key not found: $key"
+            }
+          }
 
       - name: Install OpenCL - Ubuntu
         if: matrix.target == 'linux-x64'
