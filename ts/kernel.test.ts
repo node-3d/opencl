@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { strict as assert } from 'node:assert';
-import { describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cl from './index.ts';
 import * as U from './utils.ts';
 
@@ -12,7 +12,12 @@ const squareCpyKern = fs
 	.toString();
 
 describe('Kernel', () => {
-	const { context, device } = cl.quickStart();
+	let context = null as unknown as cl.TClContext;
+	let device = null as unknown as cl.TClDevice;
+
+	before(() => {
+		({ context, device } = cl.quickStart());
+	});
 
 	describe('#createKernel', () => {
 		it('returns a valid kernel', () => {

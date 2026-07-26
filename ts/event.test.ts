@@ -1,11 +1,15 @@
 import { strict as assert } from 'node:assert';
-import { describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import type { TestContext } from 'node:test';
 import * as cl from './index.ts';
 import * as U from './utils.ts';
 
 describe('Event', () => {
-	const { context } = cl.quickStart();
+	let context = null as unknown as cl.TClContext;
+
+	before(() => {
+		({ context } = cl.quickStart());
+	});
 
 	describe('#createUserEvent', () => {
 		it('creates a user Event', () => {

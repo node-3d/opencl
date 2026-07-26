@@ -1,12 +1,20 @@
 import { strict as assert } from 'node:assert';
-import { describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cl from './index.ts';
 import * as U from './utils.ts';
 
 describe('Context', () => {
-	const { platform, device, context } = cl.quickStart();
-	const properties = [cl.CONTEXT_PLATFORM, platform];
-	const devices = [device];
+	let platform = null as unknown as cl.TClPlatform;
+	let device = null as unknown as cl.TClDevice;
+	let context = null as unknown as cl.TClContext;
+	let properties = null as unknown as [number, cl.TClPlatform];
+	let devices = null as unknown as [cl.TClDevice];
+
+	before(() => {
+		({ platform, device, context } = cl.quickStart());
+		properties = [cl.CONTEXT_PLATFORM, platform];
+		devices = [device];
+	});
 
 	describe('#createContext', () => {
 		it('throws if bad devices list', () => {

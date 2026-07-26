@@ -1,5 +1,5 @@
 import { strict as assert } from 'node:assert';
-import { describe, it, after } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import * as cl from './index.ts';
 import * as U from './utils.ts';
 
@@ -22,16 +22,29 @@ const grayColor = [0.5, 0.5, 0.5, 0.5];
 const color = Buffer.from(grayColor);
 
 describe('CommandQueue - Image', () => {
-	const { context, device } = cl.quickStart();
-	const cq = U.newQueue(context, device);
+	let context = null as unknown as cl.TClContext;
+	let device = null as unknown as cl.TClDevice;
+	let cq = null as unknown as cl.TClQueue;
+	let buffer = null as unknown as cl.TClMem;
+	let image = null as unknown as cl.TClMem;
 
-	const buffer = cl.createBuffer(context, cl.MEM_WRITE_ONLY, 8, null);
-	const image = cl.createImage(context, 0, imageFormat, imageDesc);
+	before(() => {
+		({ context, device } = cl.quickStart());
+		cq = U.newQueue(context, device);
+		buffer = cl.createBuffer(context, cl.MEM_WRITE_ONLY, 8, null);
+		image = cl.createImage(context, 0, imageFormat, imageDesc);
+	});
 
 	after(() => {
-		cl.releaseMemObject(image);
-		cl.releaseMemObject(buffer);
-		cl.releaseCommandQueue(cq);
+		if (image) {
+			cl.releaseMemObject(image);
+		}
+		if (buffer) {
+			cl.releaseMemObject(buffer);
+		}
+		if (cq) {
+			cl.releaseCommandQueue(cq);
+		}
 	});
 
 	describe('#enqueueReadImage', () => {

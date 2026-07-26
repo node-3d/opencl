@@ -1,13 +1,20 @@
 import { strict as assert } from 'node:assert';
-import { describe, it, after } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import * as cl from './index.ts';
 
 describe('MemObj', () => {
-	const { context } = cl.quickStart();
-	const buffer = cl.createBuffer(context, 0, 8);
+	let context = null as unknown as cl.TClContext;
+	let buffer = null as unknown as cl.TClMem;
+
+	before(() => {
+		({ context } = cl.quickStart());
+		buffer = cl.createBuffer(context, 0, 8);
+	});
 
 	after(() => {
-		cl.releaseMemObject(buffer);
+		if (buffer) {
+			cl.releaseMemObject(buffer);
+		}
 	});
 
 	describe('#createBuffer', () => {

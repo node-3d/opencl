@@ -87,6 +87,15 @@ jobs:
           $procMain.WaitForExit()
           $procLog.Kill()
 
+      - name: Install OpenCL - Windows ARM
+        shell: pwsh
+        if: matrix.target == 'windows-arm64'
+        run: |
+          winget --info
+          winget source update
+          winget install -e --id Microsoft.OpenCLGLVulkanCompatibilityPack --source msstore --accept-package-agreements --accept-source-agreements
+          reg query "HKLM\SOFTWARE\Khronos\OpenCL\Vendors" /s
+
       - name: Install OpenCL - Ubuntu
         if: matrix.target == 'linux-x64'
         run: |

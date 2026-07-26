@@ -1,12 +1,13 @@
 import { strict as assert } from 'node:assert';
-import { describe, it, after } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import * as cl from './index.ts';
 import * as U from './utils.ts';
 
 describe('MemObj', () => {
-	const { context } = cl.quickStart();
+	let context = null as unknown as cl.TClContext;
+	let buffer = null as unknown as cl.TClMem;
+	let image = null as unknown as cl.TClMem;
 
-	const buffer = cl.createBuffer(context, cl.MEM_WRITE_ONLY, 8);
 	const format: cl.TClImageFormat = {
 		channel_order: cl.RGBA,
 		channel_data_type: cl.UNSIGNED_INT8,
@@ -15,11 +16,20 @@ describe('MemObj', () => {
 		type: cl.MEM_OBJECT_IMAGE1D,
 		width: 8,
 	};
-	const image = cl.createImage(context, cl.MEM_WRITE_ONLY, format, desc);
+
+	before(() => {
+		({ context } = cl.quickStart());
+		buffer = cl.createBuffer(context, cl.MEM_WRITE_ONLY, 8);
+		image = cl.createImage(context, cl.MEM_WRITE_ONLY, format, desc);
+	});
 
 	after(() => {
-		cl.releaseMemObject(image);
-		cl.releaseMemObject(buffer);
+		if (image) {
+			cl.releaseMemObject(image);
+		}
+		if (buffer) {
+			cl.releaseMemObject(buffer);
+		}
 	});
 
 	describe('#getSupportedImageFormats', () => {

@@ -1,10 +1,15 @@
 import { strict as assert } from 'node:assert';
-import { describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cl from './index.ts';
 import * as U from './utils.ts';
 
 describe('Platform', () => {
-	const { platform, device } = cl.quickStart();
+	let platform = null as unknown as cl.TClPlatform;
+	let device = null as unknown as cl.TClDevice;
+
+	before(() => {
+		({ platform, device } = cl.quickStart());
+	});
 
 	describe('#getPlatformIDs()', () => {
 		it('returns an array', () => {

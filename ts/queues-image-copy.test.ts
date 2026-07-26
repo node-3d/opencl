@@ -1,5 +1,5 @@
 import { strict as assert } from 'node:assert';
-import { describe, it, after } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import * as cl from './index.ts';
 import * as U from './utils.ts';
 
@@ -26,11 +26,19 @@ const zeroArray = [0, 0, 0];
 const validRegion = [8, 8, 1];
 
 describe('CommandQueue - Image Copy', () => {
-	const { context, device } = cl.quickStart();
-	const cq = U.newQueue(context, device);
+	let context = null as unknown as cl.TClContext;
+	let device = null as unknown as cl.TClDevice;
+	let cq = null as unknown as cl.TClQueue;
+
+	before(() => {
+		({ context, device } = cl.quickStart());
+		cq = U.newQueue(context, device);
+	});
 
 	after(() => {
-		cl.releaseCommandQueue(cq);
+		if (cq) {
+			cl.releaseCommandQueue(cq);
+		}
 	});
 
 	describe('#enqueueCopyImage', () => {

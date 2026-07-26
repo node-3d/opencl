@@ -1,13 +1,20 @@
 import { strict as assert } from 'node:assert';
-import { describe, it, after } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import * as cl from './index.ts';
 
 describe('Sampler', () => {
-	const { context } = cl.quickStart();
-	const sampler = cl.createSampler(context, cl.TRUE, cl.ADDRESS_NONE, cl.FILTER_LINEAR);
+	let context = null as unknown as cl.TClContext;
+	let sampler = null as unknown as cl.TClSampler;
+
+	before(() => {
+		({ context } = cl.quickStart());
+		sampler = cl.createSampler(context, cl.TRUE, cl.ADDRESS_NONE, cl.FILTER_LINEAR);
+	});
 
 	after(() => {
-		cl.releaseSampler(sampler);
+		if (sampler) {
+			cl.releaseSampler(sampler);
+		}
 	});
 
 	describe('#createSampler', () => {
