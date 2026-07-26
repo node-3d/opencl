@@ -319,6 +319,7 @@ describe('CommandQueue - Image Copy', () => {
 				cl.releaseEvent(ret.event as cl.TClEvent);
 				done();
 			});
+			cl.flush(cq);
 		});
 
 		it('doesnt throw as we are using the pointer from an event', (_t, done) => {
@@ -335,6 +336,7 @@ describe('CommandQueue - Image Copy', () => {
 				cl.releaseEvent(ret.event as unknown as cl.TClEvent);
 				done();
 			});
+			cl.flush(cq);
 		});
 	});
 

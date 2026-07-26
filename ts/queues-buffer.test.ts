@@ -84,6 +84,7 @@ describe('CommandQueue - Buffer', () => {
 				cl.releaseMemObject(buffer);
 				done();
 			});
+			cl.flush(cq);
 		});
 	});
 
@@ -615,6 +616,7 @@ describe('CommandQueue - Buffer', () => {
 				cl.releaseEvent(ret.event as cl.TClEvent);
 				done();
 			});
+			cl.flush(cq);
 		});
 	});
 });

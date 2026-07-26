@@ -245,6 +245,7 @@ describe('CommandQueue - Common', () => {
 				cl.releaseEvent(ret);
 				cl.releaseEvent(event);
 			});
+			cl.flush(cq);
 		});
 	});
 
@@ -271,6 +272,7 @@ describe('CommandQueue - Common', () => {
 				cl.releaseEvent(ret);
 				cl.releaseEvent(event);
 			});
+			cl.flush(cq);
 		});
 	});
 });

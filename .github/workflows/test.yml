@@ -120,6 +120,7 @@ jobs:
 
       - name: Run Unit Tests
         if: ${{ matrix.native_tests }}
+        timeout-minutes: 5
         run: npm run test:ci
 
       - name: Run Export Tests
