@@ -4,6 +4,12 @@ import * as cl from './index.ts';
 export const newQueue = (context: cl.TClContext, device: cl.TClDevice): cl.TClQueue =>
 	cl.createCommandQueue(context, device, null);
 
+export const isD3DDevice = ({
+	name,
+	version,
+}: Pick<cl.TQuickStartResult, 'name' | 'version'>): boolean =>
+	version.includes('D3D') || name.includes('D3D') || name.includes('D3D12');
+
 export const withProgram = (
 	context: cl.TClContext,
 	source: string,

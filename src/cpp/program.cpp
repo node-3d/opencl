@@ -136,6 +136,8 @@ JS_METHOD(buildProgram) {
 	}
 
 	int err;
+	const cl_device_id *devices = cl_devices.empty() ? nullptr : cl_devices.data();
+	const char *opts = options.length() > 0 ? options.c_str() : nullptr;
 
 	// callback + userdata
 	if (!IS_ARG_EMPTY(3)) {
@@ -143,20 +145,13 @@ JS_METHOD(buildProgram) {
 		err = clBuildProgram(
 		    p,
 		    (cl_uint)cl_devices.size(),
-		    &cl_devices.front(),
-		    options.length() > 0 ? options.c_str() : nullptr,
+		    devices,
+		    opts,
 		    NotifyHelper<cl_program>::callNotify,
 		    new NotifyHelper<cl_program>(callback, info[4])
 		);
 	} else {
-		err = clBuildProgram(
-		    p,
-		    (cl_uint)cl_devices.size(),
-		    cl_devices.size() ? &cl_devices.front() : nullptr,
-		    options.length() > 0 ? options.c_str() : nullptr,
-		    nullptr,
-		    nullptr
-		);
+		err = clBuildProgram(p, (cl_uint)cl_devices.size(), devices, opts, nullptr, nullptr);
 	}
 
 	CHECK_ERR(err);
@@ -210,17 +205,21 @@ JS_METHOD(compileProgram) {
 	}
 
 	int err;
+	const cl_device_id *devices = cl_devices.empty() ? nullptr : cl_devices.data();
+	const cl_program *headers = program_headers.empty() ? nullptr : program_headers.data();
+	const char **header_names = names.empty() ? nullptr : names.data();
+	const char *opts = options.length() > 0 ? options.c_str() : nullptr;
 
 	if (!IS_ARG_EMPTY(5)) {
 		REQ_FUN_ARG(5, callback);
 		err = clCompileProgram(
 		    p,
 		    (cl_uint)cl_devices.size(),
-		    &cl_devices.front(),
-		    options.length() > 0 ? options.c_str() : nullptr,
+		    devices,
+		    opts,
 		    (cl_uint)program_headers.size(),
-		    &program_headers.front(),
-		    &names.front(),
+		    headers,
+		    header_names,
 		    NotifyHelper<cl_program>::callNotify,
 		    new NotifyHelper<cl_program>(callback, info[6])
 		);
@@ -228,11 +227,11 @@ JS_METHOD(compileProgram) {
 		err = clCompileProgram(
 		    p,
 		    (cl_uint)cl_devices.size(),
-		    &cl_devices.front(),
-		    options.length() > 0 ? options.c_str() : nullptr,
+		    devices,
+		    opts,
 		    (cl_uint)program_headers.size(),
-		    &program_headers.front(),
-		    &names.front(),
+		    headers,
+		    header_names,
 		    nullptr,
 		    nullptr
 		);

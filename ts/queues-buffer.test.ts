@@ -7,9 +7,12 @@ describe('CommandQueue - Buffer', () => {
 	let context = null as unknown as cl.TClContext;
 	let device = null as unknown as cl.TClDevice;
 	let cq = null as unknown as cl.TClQueue;
+	let isD3DDevice = false;
 
 	before(() => {
-		({ context, device } = cl.quickStart());
+		const setup = cl.quickStart();
+		({ context, device } = setup);
+		isD3DDevice = U.isD3DDevice(setup);
 		cq = U.newQueue(context, device);
 	});
 
@@ -607,7 +610,18 @@ describe('CommandQueue - Buffer', () => {
 
 		it("doesn't throw as we are using the pointer from an event", (_t, done) => {
 			const buf = cl.createBuffer(context, cl.MEM_COPY_HOST_PTR, 8, Buffer.alloc(8).fill(3));
-			const ret = cl.enqueueMapBuffer(cq, buf, false, 0, 0, 8);
+			let ret = null as unknown as ReturnType<typeof cl.enqueueMapBuffer>;
+			try {
+				ret = cl.enqueueMapBuffer(cq, buf, false, 0, 0, 8);
+			} catch (error) {
+				cl.releaseMemObject(buf);
+				if (!isD3DDevice) {
+					throw error;
+				}
+				assert.deepStrictEqual(error, cl.INVALID_VALUE);
+				done();
+				return;
+			}
 
 			cl.setEventCallback(ret.event as cl.TClEvent, cl.COMPLETE, () => {
 				const u8s = new Uint8Array(ret.buffer);
