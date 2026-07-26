@@ -2,7 +2,6 @@
 	'variables': {
 		'bin': '<!(node -e "import(\'@node-3d/addon-tools\').then((m) => m.printBin())")',
 		'cl_include': 'include',
-		'opencl_lib_machine%': 'X64',
 	},
 	'targets': [
 		{
@@ -16,11 +15,6 @@
 				'<(cl_include)',
 			],
 			'conditions': [
-				['OS=="win" and target_arch=="arm64"', {
-					'variables': {
-						'opencl_lib_machine': 'ARM64',
-					},
-				}],
 				['OS=="linux"', {
 					'libraries': [
 						"-Wl,-rpath,'$$ORIGIN'",
@@ -40,7 +34,7 @@
 								'lib.exe',
 								'/nologo',
 								'/def:<(module_root_dir)/lib/OpenCL.def',
-								'/machine:<(opencl_lib_machine)',
+								'/machine:$(Platform)',
 								'/out:<(INTERMEDIATE_DIR)/OpenCL.lib',
 							],
 						},

@@ -100,8 +100,6 @@ jobs:
 
       - name: Build Current Binary
         run: npm run build:rebuild
-        env:
-          npm_config_arch: ${{ matrix.node_arch }}
 
       - name: Run Unit Tests
         if: ${{ matrix.native_tests }}
