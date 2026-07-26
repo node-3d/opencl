@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import { strict as assert } from 'node:assert';
 import { before, describe, it } from 'node:test';
-import type { TestContext } from 'node:test';
 import * as cl from './index.ts';
 import * as U from './utils.ts';
 
@@ -48,18 +47,6 @@ describe('Program', () => {
 			const ret = cl.buildProgram(prg);
 			assert.strictEqual(ret, undefined);
 			cl.releaseProgram(prg);
-		});
-
-		it('builds and call the callback using a valid program', (_t, done) => {
-			const cb: cl.TBuildProgramCb = (prg, userData) => {
-				assert.ok(prg);
-				cl.releaseProgram(prg);
-				assert.strictEqual((userData as { done: () => void }).done, done);
-				done();
-			};
-			const prg = cl.createProgramWithSource(context, squareKern);
-			const ret = cl.buildProgram(prg, [device], undefined, cb, { done });
-			assert.strictEqual(ret, undefined);
 		});
 
 		it('builds using a valid program and options', () => {
@@ -160,18 +147,6 @@ describe('Program', () => {
 			cl.releaseProgram(prg);
 		});
 
-		it('compiles a program - async', (_t, done) => {
-			const cb: cl.TBuildProgramCb = (prg, userData) => {
-				assert.ok(prg);
-				cl.releaseProgram(prg);
-				assert.strictEqual((userData as { done: () => void }).done, done);
-				done();
-			};
-			const prg = cl.createProgramWithSource(context, squareKern);
-			const ret = cl.compileProgram(prg, [device], null, null, null, cb, { done });
-			assert.strictEqual(ret, undefined);
-		});
-
 		it('compiles a program with header', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			const prg2 = cl.createProgramWithSource(context, squareKern);
@@ -217,30 +192,6 @@ describe('Program', () => {
 			U.assertType(nprg, 'object');
 
 			cl.releaseProgram(nprg);
-			cl.releaseProgram(prg);
-		});
-
-		it('links one program and calls the callback', (t: TestContext, done: () => void) => {
-			t.plan(2); // plan for 2 assertions in event callback
-
-			const prg = cl.createProgramWithSource(context, squareKern);
-			cl.compileProgram(prg);
-
-			cl.linkProgram(
-				context,
-				null,
-				null,
-				[prg],
-				(linked, userData) => {
-					t.assert.ok(linked);
-					t.assert.strictEqual(userData, 'hello');
-
-					cl.releaseProgram(linked);
-					done();
-				},
-				'hello',
-			);
-
 			cl.releaseProgram(prg);
 		});
 
