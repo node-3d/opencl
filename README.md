@@ -31,6 +31,14 @@ invalid-input edge cases, especially around program build failures and kernel ar
 validation. Valid kernel build, argument setup, queue, buffer, and execution paths are
 still tested there.
 
+Windows ARM64 builds link against an import library generated from the official
+Khronos OpenCL DEF file instead of a checked-in Win64-specific `OpenCL.lib`.
+
+Tests keep Node3D wrapper correctness separate from runtime-specific OpenCL
+behavior. The addon does not add JS-side validation just to reject handles or
+arguments that a native runtime accepts; platform-specific differences should be
+documented instead.
+
 The API directly reflects the low-level **OpenCL** interface. There are minor changes
 similar to how WebGL is different from OpenGL.
 * All `cl*` methods are available as `cl.*` starting lowercase,
