@@ -16,18 +16,23 @@ before(() => {
 describe('Program - compileProgram', () => {
 	it('compiles a program', () => {
 		const prg = cl.createProgramWithSource(context, squareKern);
-		const ret = cl.compileProgram(prg);
-		assert.strictEqual(ret, undefined);
-		cl.releaseProgram(prg);
+		try {
+			cl.compileProgram(prg);
+		} finally {
+			cl.releaseProgram(prg);
+		}
 	});
 
 	it('compiles a program with header', () => {
 		const prg = cl.createProgramWithSource(context, squareKern);
 		const prg2 = cl.createProgramWithSource(context, squareKern);
 
-		const ret = cl.compileProgram(prg, null, null, [prg2], ['prg2.h']);
-		assert.strictEqual(ret, undefined);
-		cl.releaseProgram(prg);
+		try {
+			cl.compileProgram(prg, null, null, [prg2], ['prg2.h']);
+		} finally {
+			cl.releaseProgram(prg2);
+			cl.releaseProgram(prg);
+		}
 	});
 
 	it('fails with unnamed header', () => {

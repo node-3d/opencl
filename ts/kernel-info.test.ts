@@ -41,9 +41,7 @@ describe('Kernel - getKernelInfo', () => {
 			const k = cl.createKernel(prg, 'square');
 			const nbArgs = cl.getKernelInfo(k, cl.KERNEL_NUM_ARGS);
 			cl.releaseKernel(k);
-			if (nbArgs !== 3) {
-				assert.fail(nbArgs, 3);
-			}
+			assert.strictEqual(nbArgs, 3);
 		});
 	});
 
@@ -52,9 +50,7 @@ describe('Kernel - getKernelInfo', () => {
 			const k = cl.createKernel(prg, 'square');
 			const name = cl.getKernelInfo(k, cl.KERNEL_FUNCTION_NAME);
 			cl.releaseKernel(k);
-			if (name !== 'square') {
-				assert.fail(name, 'square');
-			}
+			assert.strictEqual(name, 'square');
 		});
 	});
 

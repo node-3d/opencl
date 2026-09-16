@@ -1,4 +1,5 @@
 import * as cl from '@node-3d/opencl';
+import type { TClEvent } from '../ts';
 
 const getEventExecTime = (event: cl.TClEvent): number => {
 	const startTime = cl.getEventProfilingInfo(event, cl.PROFILING_COMMAND_START);
@@ -64,11 +65,14 @@ cl.setKernelArg(kernel, 1, 'float*', aBuffer);
 cl.setKernelArg(kernel, 2, 'float*', bBuffer);
 cl.setKernelArg(kernel, 3, 'float*', cBuffer);
 
-// Do the work
-const writeEvents = [
-	cl.enqueueWriteBuffer(queue, aBuffer, false, 0, size, A, undefined, true) as cl.TClEvent,
-	cl.enqueueWriteBuffer(queue, bBuffer, false, 0, size, B, undefined, true) as cl.TClEvent,
-];
+const writeEventA = cl.enqueueWriteBuffer(queue, aBuffer, false, 0, size, A, undefined, true);
+const writeEventB = cl.enqueueWriteBuffer(queue, bBuffer, false, 0, size, B, undefined, true);
+
+if (!writeEventA || !writeEventB) {
+	throw new Error('Failed to create writeEvents');
+}
+
+const writeEvents: TClEvent[] = [writeEventA, writeEventB] as const;
 
 // Execute (enqueue) kernel
 const localWS = undefined; // process one list at a time
@@ -83,19 +87,18 @@ const kernelEvent = cl.enqueueNDRangeKernel(
 	localWS,
 	writeEvents,
 	true,
-) as cl.TClEvent;
+);
+
+if (!kernelEvent) {
+	throw new Error('Failed to create kernelEvent');
+}
 
 // get results and block while getting them
-const readEvent = cl.enqueueReadBuffer(
-	queue,
-	cBuffer,
-	false,
-	0,
-	size,
-	C,
-	[kernelEvent],
-	true,
-) as cl.TClEvent;
+const readEvent = cl.enqueueReadBuffer(queue, cBuffer, false, 0, size, C, [kernelEvent], true);
+
+if (!readEvent) {
+	throw new Error('Failed to create readEvent');
+}
 
 cl.waitForEvents([readEvent]);
 
@@ -108,7 +111,7 @@ console.log(
 );
 
 // get all event statistics
-console.log('Transfer matrix A:', getEventExecTime(writeEvents[0]), 'msec');
-console.log('Transfer matrix B:', getEventExecTime(writeEvents[1]), 'msec');
+console.log('Transfer matrix A:', getEventExecTime(writeEventA), 'msec');
+console.log('Transfer matrix B:', getEventExecTime(writeEventB), 'msec');
 console.log('Execute SAXPY kernel:', getEventExecTime(kernelEvent), 'msec');
 console.log('Read matrix C:', getEventExecTime(readEvent), 'msec');

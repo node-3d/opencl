@@ -135,7 +135,7 @@ describe('Device', () => {
 		});
 
 		it('throws cl.INVALID_VALUE with name=123456', () => {
-			assert.throws(() => cl.getDeviceInfo(device, 123456), cl.INVALID_VALUE);
+			assert.throws(() => cl.getDeviceInfo(device, 123_456), cl.INVALID_VALUE);
 		});
 
 		it('throws cl.INVALID_DEVICE with device = null', () => {
@@ -198,13 +198,17 @@ describe('Device', () => {
 
 	describe('#retainDevice()', () => {
 		it('throws cl.INVALID_DEVICE if device is not a subdevice', () => {
-			assert.throws(() => cl.retainDevice(device), cl.INVALID_DEVICE);
+			assert.throws(() => {
+				cl.retainDevice(device);
+			}, cl.INVALID_DEVICE);
 		});
 	});
 
 	describe('#releaseDevice()', () => {
 		it('throws cl.INVALID_DEVICE if device is not a subdevice', () => {
-			assert.throws(() => cl.releaseDevice(device), cl.INVALID_DEVICE);
+			assert.throws(() => {
+				cl.releaseDevice(device);
+			}, cl.INVALID_DEVICE);
 		});
 	});
 });

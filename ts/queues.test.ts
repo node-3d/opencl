@@ -81,14 +81,14 @@ describe('CommandQueue - Common', () => {
 	});
 
 	describe('#flush', () => {
-		it('returns success', () => {
-			assert.strictEqual(cl.flush(cq), cl.SUCCESS);
+		it('flushes the queue', () => {
+			cl.flush(cq);
 		});
 	});
 
 	describe('#finish', () => {
-		it('returns success', () => {
-			assert.strictEqual(cl.finish(cq), cl.SUCCESS);
+		it('finishes the queue', () => {
+			cl.finish(cq);
 		});
 	});
 
@@ -109,10 +109,10 @@ describe('CommandQueue - Common', () => {
 	});
 
 	describe('#enqueueNDRangeKernel', () => {
-		const inputs = Buffer.alloc(10000 * 4);
-		const outputs = Buffer.alloc(10000 * 4);
+		const inputs = Buffer.alloc(10_000 * 4);
+		const outputs = Buffer.alloc(10_000 * 4);
 
-		for (let i = 0; i < 10000; ++i) {
+		for (let i = 0; i < 10_000; ++i) {
 			inputs.writeUInt32LE(i, i * 4);
 		}
 
@@ -121,17 +121,22 @@ describe('CommandQueue - Common', () => {
 				cl.buildProgram(prg);
 				const kern = cl.createKernel(prg, 'square');
 
-				const inputsMem = cl.createBuffer(context, cl.MEM_COPY_HOST_PTR, 10000 * 4, inputs);
+				const inputsMem = cl.createBuffer(
+					context,
+					cl.MEM_COPY_HOST_PTR,
+					10_000 * 4,
+					inputs,
+				);
 				const outputsMem = cl.createBuffer(
 					context,
 					cl.MEM_COPY_HOST_PTR,
-					10000 * 4,
+					10_000 * 4,
 					outputs,
 				);
 
 				cl.setKernelArg(kern, 0, 'uint*', inputsMem);
 				cl.setKernelArg(kern, 1, 'uint*', outputsMem);
-				cl.setKernelArg(kern, 2, 'uint', 10000);
+				cl.setKernelArg(kern, 2, 'uint', 10_000);
 
 				cl.enqueueNDRangeKernel(cq, kern, 1, null, [100]);
 
@@ -162,17 +167,22 @@ describe('CommandQueue - Common', () => {
 				cl.buildProgram(prg);
 				const kern = cl.createKernel(prg, 'square');
 
-				const inputsMem = cl.createBuffer(context, cl.MEM_COPY_HOST_PTR, 10000 * 4, inputs);
+				const inputsMem = cl.createBuffer(
+					context,
+					cl.MEM_COPY_HOST_PTR,
+					10_000 * 4,
+					inputs,
+				);
 				const outputsMem = cl.createBuffer(
 					context,
 					cl.MEM_COPY_HOST_PTR,
-					10000 * 4,
+					10_000 * 4,
 					outputs,
 				);
 
 				cl.setKernelArg(kern, 0, 'uint*', inputsMem);
 				cl.setKernelArg(kern, 1, 'uint*', outputsMem);
-				cl.setKernelArg(kern, 2, 'uint', 10000);
+				cl.setKernelArg(kern, 2, 'uint', 10_000);
 				assert.throws(
 					() => cl.enqueueNDRangeKernel(cq, kern, 1, null, [100, 200]),
 					cl.INVALID_GLOBAL_WORK_SIZE,
@@ -227,15 +237,11 @@ describe('CommandQueue - Common', () => {
 			const array = Buffer.from([0, 0, 0, 0, 0, 0, 0, 0]);
 
 			const buffer = cl.createBuffer(context, cl.MEM_USE_HOST_PTR, 32, array);
-			const event = cl.enqueueFillBuffer(
-				cq,
-				buffer,
-				Buffer.from([1, 2]),
-				0,
-				16,
-				null,
-				true,
-			) as cl.TClEvent;
+			const event = cl.enqueueFillBuffer(cq, buffer, Buffer.from([1, 2]), 0, 16, null, true);
+
+			if (!event) {
+				throw new Error('Could not create event');
+			}
 
 			const ret = cl.enqueueMarkerWithWaitList(cq, [event]);
 			U.assertType(ret, 'object');
@@ -254,18 +260,18 @@ describe('CommandQueue - Common', () => {
 			const array = Buffer.from([0, 0, 0, 0, 0, 0, 0, 0]);
 
 			const buffer = cl.createBuffer(context, cl.MEM_USE_HOST_PTR, 32, array);
-			const event = cl.enqueueFillBuffer(
-				cq,
-				buffer,
-				Buffer.from([1, 2]),
-				0,
-				16,
-				null,
-				true,
-			) as cl.TClEvent;
+			const event = cl.enqueueFillBuffer(cq, buffer, Buffer.from([1, 2]), 0, 16, null, true);
 
-			const ret = cl.enqueueBarrierWithWaitList(cq, [event], true) as cl.TClEvent;
+			if (!event) {
+				throw new Error('Could not create the event');
+			}
+
+			const ret = cl.enqueueBarrierWithWaitList(cq, [event], true);
 			U.assertType(ret, 'object');
+
+			if (!ret) {
+				throw new Error('Could not create the ret event');
+			}
 
 			cl.setEventCallback(ret, cl.COMPLETE, () => {
 				cl.releaseMemObject(buffer);

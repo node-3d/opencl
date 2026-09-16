@@ -32,16 +32,11 @@ cl.enqueueNDRangeKernel(cq, kern, 1, undefined, [NVALUES]);
 
 // here we use the returned user event to associate a callback that will be called from OpenCL
 // once read buffer is complete.
-const ev = cl.enqueueReadBuffer(
-	cq,
-	outputsMem,
-	true,
-	0,
-	NVALUES * 4,
-	outputs,
-	[],
-	true,
-) as cl.TClEvent;
+const ev = cl.enqueueReadBuffer(cq, outputsMem, true, 0, NVALUES * 4, outputs, [], true);
+
+if (!ev) {
+	throw new Error('Could not enqueueReadBuffer.');
+}
 
 const correctValue = (NVALUES - 1) * (NVALUES - 1);
 

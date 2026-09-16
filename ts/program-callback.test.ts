@@ -24,8 +24,7 @@ describe('Program - buildProgram callback', () => {
 			done();
 		};
 		const prg = cl.createProgramWithSource(context, squareKern);
-		const ret = cl.buildProgram(prg, [device], undefined, cb, { done });
-		assert.strictEqual(ret, undefined);
+		cl.buildProgram(prg, [device], undefined, cb, { done });
 	});
 });
 
@@ -38,8 +37,7 @@ describe('Program - compileProgram callback', () => {
 			done();
 		};
 		const prg = cl.createProgramWithSource(context, squareKern);
-		const ret = cl.compileProgram(prg, [device], null, null, null, cb, { done });
-		assert.strictEqual(ret, undefined);
+		cl.compileProgram(prg, [device], null, null, null, cb, { done });
 	});
 });
 

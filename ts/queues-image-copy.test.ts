@@ -310,13 +310,17 @@ describe('CommandQueue - Image Copy', () => {
 			const ret = cl.enqueueMapImage(cq, image, false, cl.MAP_READ, zeroArray, [2, 2, 1]);
 
 			assert.ok(ret.buffer instanceof ArrayBuffer);
-			assert.ok(ret.event);
 			U.assertType(ret.image_row_pitch, 'number');
 			U.assertType(ret.image_slice_pitch, 'number');
 
-			cl.setEventCallback(ret.event, cl.COMPLETE, () => {
+			const { event } = ret;
+			if (!event) {
+				throw new Error('Could not create the event');
+			}
+
+			cl.setEventCallback(event, cl.COMPLETE, () => {
 				cl.releaseMemObject(image);
-				cl.releaseEvent(ret.event as cl.TClEvent);
+				cl.releaseEvent(event);
 				done();
 			});
 			cl.flush(cq);

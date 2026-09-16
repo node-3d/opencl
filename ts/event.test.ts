@@ -73,7 +73,9 @@ describe('Event', () => {
 
 		it('throws an error for invalid status', () => {
 			const userEvent = cl.createUserEvent(context);
-			assert.throws(() => cl.setUserEventStatus(userEvent, 123), cl.INVALID_VALUE);
+			assert.throws(() => {
+				cl.setUserEventStatus(userEvent, 123);
+			}, cl.INVALID_VALUE);
 
 			cl.setUserEventStatus(userEvent, cl.COMPLETE); // on NVIDIA hangs if not set
 			cl.releaseEvent(userEvent);

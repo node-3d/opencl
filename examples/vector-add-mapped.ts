@@ -58,7 +58,7 @@ const queue = cl.createCommandQueue(context, device); // OpenCL 1.x
 const localWS = undefined;
 const globalWS = [BUFFER_SIZE];
 
-console.log(`Global work item size: ${globalWS}`);
+console.log(`Global work item size: [${BUFFER_SIZE}]`);
 console.log(`Local work item size: ${localWS}`);
 
 // Execute kernel

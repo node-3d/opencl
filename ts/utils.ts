@@ -24,47 +24,6 @@ export const withProgram = (
 	}
 };
 
-export const withProgramAsync = (
-	context: cl.TClContext,
-	source: string,
-	cb: (p: cl.TClProgram, done: () => void) => void,
-): void => {
-	const prg = cl.createProgramWithSource(context, source);
-	cl.buildProgram(prg, null, '-cl-kernel-arg-info');
-
-	try {
-		return cb(prg, () => cl.releaseProgram(prg));
-	} catch {
-		cl.releaseProgram(prg);
-	}
-};
-
-export const withCQ = (
-	context: cl.TClContext,
-	device: cl.TClDevice,
-	cb: (p: cl.TClQueue) => void,
-): void => {
-	const cq = newQueue(context, device);
-	try {
-		return cb(cq);
-	} finally {
-		cl.releaseCommandQueue(cq);
-	}
-};
-
-export const withAsyncCQ = (
-	context: cl.TClContext,
-	device: cl.TClDevice,
-	cb: (p: cl.TClQueue, done: () => void) => void,
-): void => {
-	const cq = newQueue(context, device);
-	try {
-		return cb(cq, () => cl.releaseCommandQueue(cq));
-	} catch {
-		cl.releaseCommandQueue(cq);
-	}
-};
-
 export const assertType = (v: unknown, name: string): void => {
 	if (name === 'object') {
 		assert.ok(v);

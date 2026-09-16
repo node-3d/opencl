@@ -51,16 +51,11 @@ describe('CommandQueue - Buffer', () => {
 		it('returns an event', () => {
 			const buffer = cl.createBuffer(context, cl.MEM_READ_ONLY, 8, null);
 			const nbuffer = Buffer.alloc(5);
-			const ret = cl.enqueueReadBuffer(
-				cq,
-				buffer,
-				true,
-				0,
-				8,
-				nbuffer,
-				null,
-				true,
-			) as cl.TClEvent;
+			const ret = cl.enqueueReadBuffer(cq, buffer, true, 0, 8, nbuffer, null, true);
+
+			if (!ret) {
+				throw new Error('Could not enqueueMapBuffer.');
+			}
 			U.assertType(ret, 'object');
 			cl.releaseEvent(ret);
 			cl.releaseMemObject(buffer);
@@ -71,17 +66,11 @@ describe('CommandQueue - Buffer', () => {
 
 			const buffer = cl.createBuffer(context, cl.MEM_READ_ONLY, 8, null);
 			const nbuffer = Buffer.alloc(5);
-			const ret = cl.enqueueReadBuffer(
-				cq,
-				buffer,
-				true,
-				0,
-				8,
-				nbuffer,
-				null,
-				true,
-			) as cl.TClEvent;
+			const ret = cl.enqueueReadBuffer(cq, buffer, true, 0, 8, nbuffer, null, true);
 
+			if (!ret) {
+				throw new Error('Could not enqueueMapBuffer.');
+			}
 			cl.setEventCallback(ret, cl.COMPLETE, () => {
 				cl.releaseEvent(ret);
 				cl.releaseMemObject(buffer);
@@ -623,11 +612,16 @@ describe('CommandQueue - Buffer', () => {
 				return;
 			}
 
-			cl.setEventCallback(ret.event as cl.TClEvent, cl.COMPLETE, () => {
+			const ev = ret.event;
+			if (!ev) {
+				throw new Error('Could not enqueueMapBuffer.');
+			}
+
+			cl.setEventCallback(ev, cl.COMPLETE, () => {
 				const u8s = new Uint8Array(ret.buffer);
 				assert.strictEqual(u8s[0], 3);
 				cl.releaseMemObject(buf);
-				cl.releaseEvent(ret.event as cl.TClEvent);
+				cl.releaseEvent(ev);
 				done();
 			});
 			cl.flush(cq);

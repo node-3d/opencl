@@ -43,7 +43,7 @@ JS_METHOD(retainCommandQueue) {
 	cl_int err = q->acquire();
 	CHECK_ERR(err)
 
-	RET_NUM(err);
+	RET_UNDEFINED;
 }
 
 JS_METHOD(releaseCommandQueue) {
@@ -53,7 +53,7 @@ JS_METHOD(releaseCommandQueue) {
 	cl_int err = q->release();
 	CHECK_ERR(err)
 
-	RET_NUM(err);
+	RET_UNDEFINED;
 }
 
 JS_METHOD(getCommandQueueInfo) {
@@ -98,7 +98,7 @@ JS_METHOD(flush) {
 	cl_int err = clFlush(clQueue);
 
 	CHECK_ERR(err);
-	RET_NUM(err);
+	RET_UNDEFINED;
 }
 
 JS_METHOD(finish) {
@@ -108,7 +108,7 @@ JS_METHOD(finish) {
 	cl_int err = clFinish(clQueue);
 
 	CHECK_ERR(err);
-	RET_NUM(err);
+	RET_UNDEFINED;
 }
 
 JS_METHOD(enqueueReadBuffer) {
