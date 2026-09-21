@@ -35,7 +35,7 @@ jobs:
             node_arch: arm64
             native_tests: true
           - target: darwin-x64
-            os: macos-26
+            os: macos-26-intel
             node_arch: x64
             native_tests: false
           - target: darwin-arm64
