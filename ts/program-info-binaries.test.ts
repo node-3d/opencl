@@ -9,20 +9,20 @@ const squareKern = fs
 
 let context = null as unknown as cl.TClContext;
 
+const testForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
+	it(`returns the good type for ${key}`, () => {
+		U.withProgram(context, squareKern, (prg) => {
+			const val = cl.getProgramInfo(prg, cl[key] as unknown as number);
+			_assert(val);
+		});
+	});
+};
+
 before(() => {
 	({ context } = cl.quickStart());
 });
 
 describe('Program - getProgramInfo binaries', () => {
-	const testForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
-		it(`returns the good type for ${key}`, () => {
-			U.withProgram(context, squareKern, (prg) => {
-				const val = cl.getProgramInfo(prg, cl[key] as unknown as number);
-				_assert(val);
-			});
-		});
-	};
-
 	testForType('PROGRAM_BINARIES', (v) => U.assertType(v, 'array'));
 	testForType('PROGRAM_BINARY_SIZES', (v) => U.assertType(v, 'array'));
 });

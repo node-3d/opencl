@@ -11,30 +11,42 @@ const squareKern = fs
 let context = null as unknown as cl.TClContext;
 let device = null as unknown as cl.TClDevice;
 
+const testKernelInfoForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
+	it(`returns the good type for ${key}`, () => {
+		U.withProgram(context, squareKern, (prg) => {
+			const k = cl.createKernel(prg, 'square');
+			const val = cl.getKernelInfo(k, cl[key] as number);
+			cl.releaseKernel(k);
+			_assert(val);
+		});
+	});
+};
+
+const testKernelWorkGroupInfoForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
+	it(`returns the good type for ${key}`, () => {
+		U.withProgram(context, squareKern, (prg) => {
+			const k = cl.createKernel(prg, 'square');
+			const val = cl.getKernelWorkGroupInfo(k, device, cl[key] as number);
+			cl.releaseKernel(k);
+			_assert(val);
+		});
+	});
+};
+
 before(() => {
 	({ context, device } = cl.quickStart());
 });
 
 describe('Kernel - getKernelInfo', () => {
-	const testForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
-		it(`returns the good type for ${key}`, () => {
-			U.withProgram(context, squareKern, (prg) => {
-				const k = cl.createKernel(prg, 'square');
-				const val = cl.getKernelInfo(k, cl[key] as number);
-				cl.releaseKernel(k);
-				_assert(val);
-			});
-		});
-	};
 	if (cl.VERSION_1_2) {
-		testForType('KERNEL_ATTRIBUTES', (v) => U.assertType(v, 'string'));
+		testKernelInfoForType('KERNEL_ATTRIBUTES', (v) => U.assertType(v, 'string'));
 	}
 
-	testForType('KERNEL_FUNCTION_NAME', (v) => U.assertType(v, 'string'));
-	testForType('KERNEL_REFERENCE_COUNT', (v) => U.assertType(v, 'number'));
-	testForType('KERNEL_NUM_ARGS', (v) => U.assertType(v, 'number'));
-	testForType('KERNEL_CONTEXT', (v) => U.assertType(v, 'object'));
-	testForType('KERNEL_PROGRAM', (v) => U.assertType(v, 'object'));
+	testKernelInfoForType('KERNEL_FUNCTION_NAME', (v) => U.assertType(v, 'string'));
+	testKernelInfoForType('KERNEL_REFERENCE_COUNT', (v) => U.assertType(v, 'number'));
+	testKernelInfoForType('KERNEL_NUM_ARGS', (v) => U.assertType(v, 'number'));
+	testKernelInfoForType('KERNEL_CONTEXT', (v) => U.assertType(v, 'object'));
+	testKernelInfoForType('KERNEL_PROGRAM', (v) => U.assertType(v, 'object'));
 
 	it('returns the corresponding number of arguments', () => {
 		U.withProgram(context, squareKern, (prg) => {
@@ -102,22 +114,15 @@ describe('Kernel - getKernelArgInfo', () => {
 });
 
 describe('Kernel - getKernelWorkGroupInfo', () => {
-	const testForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
-		it(`returns the good type for ${key}`, () => {
-			U.withProgram(context, squareKern, (prg) => {
-				const k = cl.createKernel(prg, 'square');
-				const val = cl.getKernelWorkGroupInfo(k, device, cl[key] as number);
-				cl.releaseKernel(k);
-				_assert(val);
-			});
-		});
-	};
-
-	testForType('KERNEL_COMPILE_WORK_GROUP_SIZE', (v) => U.assertType(v, 'array'));
-	testForType('KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE', (v) => U.assertType(v, 'number'));
-	testForType('KERNEL_WORK_GROUP_SIZE', (v) => U.assertType(v, 'number'));
-	testForType('KERNEL_LOCAL_MEM_SIZE', (v) => U.assertType(v, 'number'));
-	testForType('KERNEL_PRIVATE_MEM_SIZE', (v) => U.assertType(v, 'number'));
+	testKernelWorkGroupInfoForType('KERNEL_COMPILE_WORK_GROUP_SIZE', (v) =>
+		U.assertType(v, 'array'),
+	);
+	testKernelWorkGroupInfoForType('KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE', (v) =>
+		U.assertType(v, 'number'),
+	);
+	testKernelWorkGroupInfoForType('KERNEL_WORK_GROUP_SIZE', (v) => U.assertType(v, 'number'));
+	testKernelWorkGroupInfoForType('KERNEL_LOCAL_MEM_SIZE', (v) => U.assertType(v, 'number'));
+	testKernelWorkGroupInfoForType('KERNEL_PRIVATE_MEM_SIZE', (v) => U.assertType(v, 'number'));
 
 	it('throws INVALID_VALUE when looking for KERNEL_GLOBAL_WORK_SIZE', () => {
 		U.withProgram(context, squareKern, (prg) => {

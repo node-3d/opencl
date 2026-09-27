@@ -4,9 +4,33 @@ import type { TestContext } from 'node:test';
 import * as cl from './index.ts';
 import * as U from './utils.ts';
 
-describe('Event', () => {
-	let context = null as unknown as cl.TClContext;
+let context = null as unknown as cl.TClContext;
 
+const testNumber = (name: keyof typeof cl, expected: number) => {
+	it(`returns value for ${name}`, () => {
+		const userEvent = cl.createUserEvent(context);
+		const val = cl.getEventInfo(userEvent, cl[name] as number);
+		U.assertType(val, 'number');
+		assert.strictEqual(expected, val);
+
+		cl.setUserEventStatus(userEvent, cl.COMPLETE); // on NVIDIA hangs if not set
+		cl.releaseEvent(userEvent);
+	});
+};
+
+const testObject = (name: keyof typeof cl) => {
+	it(`returns the good value for ${name}`, () => {
+		const userEvent = cl.createUserEvent(context);
+
+		const val = cl.getEventInfo(userEvent, cl[name] as number);
+		U.assertType(val, 'object');
+
+		cl.setUserEventStatus(userEvent, cl.COMPLETE); // on NVIDIA hangs if not set
+		cl.releaseEvent(userEvent);
+	});
+};
+
+describe('Event', () => {
 	before(() => {
 		({ context } = cl.quickStart());
 	});
@@ -22,30 +46,6 @@ describe('Event', () => {
 	});
 
 	describe('#getEventInfo', () => {
-		const testNumber = (name: keyof typeof cl, expected: number) => {
-			it(`returns value for ${name}`, () => {
-				const userEvent = cl.createUserEvent(context);
-				const val = cl.getEventInfo(userEvent, cl[name] as number);
-				U.assertType(val, 'number');
-				assert.strictEqual(expected, val);
-
-				cl.setUserEventStatus(userEvent, cl.COMPLETE); // on NVIDIA hangs if not set
-				cl.releaseEvent(userEvent);
-			});
-		};
-
-		const testObject = (name: keyof typeof cl) => {
-			it(`returns the good value for ${name}`, () => {
-				const userEvent = cl.createUserEvent(context);
-
-				const val = cl.getEventInfo(userEvent, cl[name] as number);
-				U.assertType(val, 'object');
-
-				cl.setUserEventStatus(userEvent, cl.COMPLETE); // on NVIDIA hangs if not set
-				cl.releaseEvent(userEvent);
-			});
-		};
-
 		testNumber('EVENT_COMMAND_EXECUTION_STATUS', cl.SUBMITTED);
 
 		it('returns the good value for EVENT_REFERENCE_COUNT', () => {

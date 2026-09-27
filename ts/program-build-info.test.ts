@@ -11,20 +11,20 @@ const squareKern = fs
 let context = null as unknown as cl.TClContext;
 let device = null as unknown as cl.TClDevice;
 
+const testForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
+	it(`returns the good type for ${key}`, () => {
+		U.withProgram(context, squareKern, (prg) => {
+			const val = cl.getProgramBuildInfo(prg, device, cl[key] as unknown as number);
+			_assert(val);
+		});
+	});
+};
+
 before(() => {
 	({ context, device } = cl.quickStart());
 });
 
 describe('Program - getProgramBuildInfo', () => {
-	const testForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
-		it(`returns the good type for ${key}`, () => {
-			U.withProgram(context, squareKern, (prg) => {
-				const val = cl.getProgramBuildInfo(prg, device, cl[key] as unknown as number);
-				_assert(val);
-			});
-		});
-	};
-
 	testForType('PROGRAM_BUILD_STATUS', (v) => U.assertType(v, 'number'));
 	testForType('PROGRAM_BUILD_OPTIONS', (v) => U.assertType(v, 'string'));
 	testForType('PROGRAM_BUILD_LOG', (v) => U.assertType(v, 'string'));

@@ -10,20 +10,20 @@ const squareKern = fs
 
 let context = null as unknown as cl.TClContext;
 
+const testForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
+	it(`returns the good type for ${key}`, () => {
+		U.withProgram(context, squareKern, (prg) => {
+			const val = cl.getProgramInfo(prg, cl[key] as unknown as number);
+			_assert(val);
+		});
+	});
+};
+
 before(() => {
 	({ context } = cl.quickStart());
 });
 
 describe('Program - getProgramInfo basic', () => {
-	const testForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
-		it(`returns the good type for ${key}`, () => {
-			U.withProgram(context, squareKern, (prg) => {
-				const val = cl.getProgramInfo(prg, cl[key] as unknown as number);
-				_assert(val);
-			});
-		});
-	};
-
 	testForType('PROGRAM_REFERENCE_COUNT', (v) => U.assertType(v, 'number'));
 	testForType('PROGRAM_NUM_DEVICES', (v) => U.assertType(v, 'number'));
 	testForType('PROGRAM_CONTEXT', (v) => U.assertType(v, 'object'));
